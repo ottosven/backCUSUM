@@ -21,7 +21,7 @@ You can install the package using the following command:
 
 ``` r
 library('devtools')
-install_github("ottosven/backCUSUM/backCUSUM")
+install_github("ottosven/backCUSUM")
 ```
 
 ## Example
