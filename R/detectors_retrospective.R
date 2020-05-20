@@ -40,9 +40,6 @@ BQ.detector <- function(formula){
   return(BQt)
 }
 
-
-
-
 #' Recursive residuals
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"

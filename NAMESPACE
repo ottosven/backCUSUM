@@ -2,4 +2,6 @@
 
 export(BQ.detector)
 export(Q.detector)
+export(Qmon.detector)
+export(SBQmon.detector)
 export(get.recresid)
