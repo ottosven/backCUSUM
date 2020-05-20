@@ -1,6 +1,6 @@
 ## ####################################################################
 ## ####################################################################
-## Supplement for 
+## Supplement for
 ## "Backward CUSUM for Testing and Monitoring Structural Change"
 ## by Sven Otto and Jörg Breitung.
 ## This R-script allows to reproduce the simulation for Figure 3.
@@ -10,25 +10,26 @@ rm(list=ls())
 start<-Sys.time()
 library("parallel")
 ## ##################################
-## Reproducible random number 
+## Reproducible random number
 ## generator for parallelization
 ## ##################################
-RNGkind("L'Ecuyer-CMRG")  
+RNGkind("L'Ecuyer-CMRG")
 set.seed(42)
 CORE <- detectCores(all.tests = FALSE, logical = TRUE)
 ## ##################################
 ## Simulation:
-## For replication of the data
-## please set the number of
-## Monte Carlo repetitions to
-## MC <- 100000
 ## ##################################
 ## Monte Carlo repetitions:
 MC <- 10
-## 
+## ##################################
+## For replication please set the number of repetitions to
+## MC <- 100000
+## Warning! This process takes a very long time
+## ##################################
 T <- 1000
-## Simulated critical values can be replicated in replicateFigure3_data_init.R
+## Simulated critical values:
 CRIT <- c(0.9376, 0.9376, 1.1875)
+## Simulated critical values can be replicated using replicateFigure3_data_init.R
 ##
 BrownianMotion <- function(T)  ( cumsum(rnorm(T,0,sqrt(1/T))) )
 ##

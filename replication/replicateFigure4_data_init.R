@@ -4,7 +4,7 @@
 ## "Backward CUSUM for Testing and Monitoring Structural Change"
 ## by Sven Otto and Jörg Breitung.
 ## This R-script allows to reproduce the critical values
-## CRIT <- c(0.9376, 0.9376, 1.1875) for the simulation for Figure 3.
+## CRIT <- c(0.9440, 0.7957, 1.3190) for the simulation for Figure 4.
 ## ####################################################################
 ## ####################################################################
 rm(list=ls())
@@ -28,24 +28,28 @@ CORE <- detectCores(all.tests = FALSE, logical = TRUE)
 MC <- 1000
 ##
 T <- 1000
+m <- 4
 ##
 BrownianMotion <- function(T)  ( cumsum(rnorm(T,0,sqrt(1/T))) )
 ##
 getSBQ <- function(rT, W, c, rstar){
   sT <- 1:(rT-1)
-  bound <- 1+2*(rT-sT)/T
+  r <- (m-1)*rT/T
+  s <- (m-1)*sT/T
+  bound <- 1+2*(r-s)
   max(abs(W[rT] - W[sT])/bound)
 }
 ##
 SIM.initial <- function(c = 0, rstar = 1){
-  r <- (1:T)/T
+  r <- (m-1)*(1:T)/T
   boundary <- 1+2*r
+  boundaryChu <- sqrt((r+1)*(log((r+1)/0.05^2)))
   sim.dist <- function(x){
-    W <- BrownianMotion(T)
+    W <- sqrt(m-1)*BrownianMotion(T)
     Q <- max(abs(W)/boundary)
-    BQ <- max(abs(W)/boundary)
+    QChu <- max(abs(W)/boundaryChu)
     SBQ <- max(sapply(2:T,getSBQ, W=W, c=c, rstar=rstar))
-    c(Q,BQ,SBQ)
+    c(Q,QChu,SBQ)
   }
   DETECTORS<-mcmapply(sim.dist, 1:MC, mc.cores = CORE)
   results <- numeric(dim(DETECTORS)[1])

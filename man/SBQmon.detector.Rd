@@ -7,8 +7,9 @@
 SBQmon.detector(formula, T)
 }
 \arguments{
-\item{formula}{Specification of the linear regression model by an object of the class "formula"
-#' @param T Length of the training sample. Monitoring starts at T+1.}
+\item{formula}{Specification of the linear regression model by an object of the class "formula"}
+
+\item{T}{Length of the training sample. Monitoring starts at T+1.}
 }
 \value{
 A vector containing the Stacked backward CUSUM monitoring detector series
@@ -21,4 +22,5 @@ T <- 100
 u <- rnorm(T,0,1)
 y <- c(rep(0,T/2), rep(1,T/2)) + u
 BQ.detector(y~1)
+
 }

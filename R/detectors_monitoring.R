@@ -34,7 +34,7 @@ Qmon.detector <- function(formula, T, bound = 'linear'){
 #' Stacked backward CUSUM detector
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
-#' #' @param T Length of the training sample. Monitoring starts at T+1.
+#' @param T Length of the training sample. Monitoring starts at T+1.
 #'
 #' @return A vector containing the Stacked backward CUSUM monitoring detector series
 #' @export
@@ -44,6 +44,7 @@ Qmon.detector <- function(formula, T, bound = 'linear'){
 #' u <- rnorm(T,0,1)
 #' y <- c(rep(0,T/2), rep(1,T/2)) + u
 #' BQ.detector(y~1)
+#'
 SBQmon.detector <- function(formula, T){
   wt.tail <- strucchange::recresid(formula)
   k <- lm(formula)$rank
