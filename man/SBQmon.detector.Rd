@@ -4,7 +4,7 @@
 \alias{SBQmon.detector}
 \title{Stacked backward CUSUM detector}
 \usage{
-SBQmon.detector(formula, T)
+SBQmon.detector(formula, T, alternative = "two.sided")
 }
 \arguments{
 \item{formula}{Specification of the linear regression model by an object of the class "formula"}

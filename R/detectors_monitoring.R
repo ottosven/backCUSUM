@@ -12,7 +12,7 @@
 #' u <- rnorm(T,0,1)
 #' y <- c(rep(0,T/2), rep(1,T/2)) + u
 #' Q.detector(y~1)
-Qmon.detector <- function(formula, T, bound = 'linear'){
+Qmon.detector <- function(formula, T, bound = 'linear', alternative = 'two.sided'){
   wt.tail <- strucchange::recresid(formula)
   k <- lm(formula)$rank
   sigmahat <- sd(wt.tail[1:(T-k)])
@@ -24,11 +24,17 @@ Qmon.detector <- function(formula, T, bound = 'linear'){
   }
   if(bound == 'radical'){
     boundary <- sqrt(r*(log(r/0.05^2)))
+    if(alternative == 'one.sided'){
+      boundary <- sqrt(r*(log(r/0.1^2)))
+    }
     crit <- 1
   }
-  Qt <- abs(cumsum(wt[-(1:T)]))/sqrt(T)/sigmahat/boundary[-(1:T)]
+  Qt <- cumsum(wt[-(1:T)])/sqrt(T)/sigmahat/boundary[-(1:T)]
+  if(alternative != 'one.sided'){
+    Qt <- abs(Qt)
+  }
   detection <- which(Qt > crit)[1]
-  return(list(Qt, detection, crit))
+  return(list(Qt = Qt, recres = wt[-(1:T)], detectiontime = detection, criticalvalue = crit))
 }
 
 #' Stacked backward CUSUM detector
@@ -45,7 +51,7 @@ Qmon.detector <- function(formula, T, bound = 'linear'){
 #' y <- c(rep(0,T/2), rep(1,T/2)) + u
 #' BQ.detector(y~1)
 #'
-SBQmon.detector <- function(formula, T){
+SBQmon.detector <- function(formula, T, alternative = 'two.sided'){
   wt.tail <- strucchange::recresid(formula)
   k <- lm(formula)$rank
   sigmahat <- sd(wt.tail[1:(T-k)])
@@ -53,10 +59,17 @@ SBQmon.detector <- function(formula, T){
   stackedBackCUSUM <- function(t, T, sigmahat, wt){
     J <- ((t-T):1)/T
     boundSBQ <- 1+2*J
-    max( abs(rev(cumsum(rev(wt[(T+1):t]))))/sqrt(T)/sigmahat/boundSBQ )
+    SBQ <- rev(cumsum(rev(wt[(T+1):t])))/sqrt(T)/sigmahat/boundSBQ
+    if(alternative == 'two.sided'){
+      SBQ <- abs(SBQ)
+    }
+    max( SBQ )
   }
   MaxSBQ <- sapply((T+1):length(wt), stackedBackCUSUM, T=T, sigmahat=sigmahat, wt = wt)
   crit <- 1.514
+  if(alternative == 'one.sided'){
+    crit <- 1.450
+  }
   detection <- which(MaxSBQ > crit)[1]
   return(list(MaxSBQ, detection, crit))
 }

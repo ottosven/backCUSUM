@@ -4,7 +4,7 @@
 \alias{Qmon.detector}
 \title{CUSUM monitoring detector}
 \usage{
-Qmon.detector(formula, T, bound = "linear")
+Qmon.detector(formula, T, bound = "linear", alternative = "two.sided")
 }
 \arguments{
 \item{formula}{Specification of the linear regression model by an object of the class "formula"}
