@@ -7,10 +7,11 @@
 sim.crit.SBQ(
   k,
   m = 2,
+  MC = 100,
+  T = 1000,
   levels = c(0.1, 0.05, 0.01, 0.001),
   alternative = "two.sided",
-  MC = 100,
-  T = 1000
+  CORE = 1
 )
 }
 \arguments{
@@ -18,13 +19,15 @@ sim.crit.SBQ(
 
 \item{m}{The length of the relative monitoring period; m = Inf for infinite horizon monitoring; for retrospective testing set m = 2 (default).}
 
+\item{MC}{Number of Monte Carlo replications.}
+
+\item{T}{gridsize.}
+
 \item{levels}{A vector if significance levels.}
 
 \item{alternative}{A character string specifying the alternative hypothesis; must be one of "two.sided" (default) or "one.sided".}
 
-\item{MC}{Number of Monte Carlo replications.}
-
-\item{T}{gridsize.}
+\item{CORE}{Number of cores used for parralell simulation}
 }
 \value{
 A vector of critical values for different significance levels.

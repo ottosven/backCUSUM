@@ -61,7 +61,8 @@ get.cusumprocess <- function(formula, T){
 #' get.crit.Q.mon(1,Inf)
 #' get.crit.Q.mon(3,0.5)
 get.crit.Q.mon <- function(k, m = Inf, alternative = "two.sided"){
-  load(file = "./R/criticalvalues.RData")
+  # load(file = "sysdata.rda")
+  backCUSUM:::Q.crit
   alphas <- as.numeric(colnames(Q.crit[[1]]))
   if(alternative == "one.sided") ( alphas <- alphas/2 )
   horizons <- as.numeric(rownames(Q.crit[[1]]))
@@ -130,7 +131,8 @@ get.crit.BQ <- function(k, alternative = "two.sided"){
 #' get.crit.SBQ.mon(1,Inf)
 #' get.crit.SBQ.mon(3,0.5)
 get.crit.SBQ.mon <- function(k, m = Inf, alternative = "two.sided"){
-  load(file = "./R/criticalvalues.RData")
+  # load(file = "sysdata.rda")
+  SBQ.crit
   alphas <- as.numeric(colnames(SBQ.crit[[1]]))
   if(alternative == "one.sided") ( alphas <- alphas/2 )
   horizons <- as.numeric(rownames(SBQ.crit[[1]]))
@@ -177,13 +179,14 @@ get.crit.SBQ <- function(k, alternative = "two.sided"){
 #' @param T gridsize.
 #' @param levels A vector if significance levels.
 #' @param alternative A character string specifying the alternative hypothesis; must be one of "two.sided" (default) or "one.sided".
+#' @param CORE Number of cores used for parralell simulation
 #'
 #' @return A vector of critical values for different significance levels.
 #' @export
 #'
 #' @examples
 #' sim.crit.Q(1, m=Inf)
-sim.crit.Q <- function(k, m = 2, levels = c(0.1, 0.05, 0.01, 0.001), alternative = "two.sided", MC = 1000, T = 10000){
+sim.crit.Q <- function(k, m = 2,  MC = 1000, T = 10000, levels = c(0.1, 0.05, 0.01, 0.001), alternative = "two.sided", CORE = 1){
   r <- (1:T)/T
   boundary.transf <- 1+r
   if(m == Inf){
@@ -200,7 +203,6 @@ sim.crit.Q <- function(k, m = 2, levels = c(0.1, 0.05, 0.01, 0.001), alternative
     Q <- max((apply(abs(B.mrange), 1, max)/boundary.mrange))
     return(Q)
   }
-  CORE <- parallel::detectCores(all.tests = FALSE, logical = TRUE)
   realizations <- parallel::mcmapply(sim.dist.Q,1:MC,mc.cores = getOption("mc.cores", CORE))
   if(alternative == "one.sided"){
     quantiles <- quantile(realizations, 1-levels*2)
@@ -224,13 +226,14 @@ sim.crit.Q <- function(k, m = 2, levels = c(0.1, 0.05, 0.01, 0.001), alternative
 #' @param T gridsize.
 #' @param levels A vector if significance levels.
 #' @param alternative A character string specifying the alternative hypothesis; must be one of "two.sided" (default) or "one.sided".
+#' @param CORE Number of cores used for parralell simulation
 #'
 #' @return A vector of critical values for different significance levels.
 #' @export
 #'
 #' @examples
 #' sim.crit.SBQ(1, m=Inf)
-sim.crit.SBQ <- function(k, m = 2, levels = c(0.1, 0.05, 0.01, 0.001), alternative = "two.sided", MC = 100, T = 1000){
+sim.crit.SBQ <- function(k, m = 2, MC = 100, T = 1000, levels = c(0.1, 0.05, 0.01, 0.001), alternative = "two.sided", CORE = 1){
   r <- (1:T)/T
   # boundary <- 1+2*(m-1)*r
   # boundary.transf <- 1+r
@@ -256,7 +259,6 @@ sim.crit.SBQ <- function(k, m = 2, levels = c(0.1, 0.05, 0.01, 0.001), alternati
     SBQ <- max(sapply(MRange, getSBQMax, B=B.mrange))
     return(SBQ)
   }
-  CORE <- parallel::detectCores(all.tests = FALSE, logical = TRUE)
   realizations <- parallel::mcmapply(sim.dist.SBQ,1:MC,mc.cores = getOption("mc.cores", CORE))
   if(alternative == "one.sided"){
     quantiles <- quantile(realizations, 1-levels*2)
