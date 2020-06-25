@@ -61,7 +61,7 @@ get.cusumprocess <- function(formula, T){
 #' get.crit.Q.mon(1,Inf)
 #' get.crit.Q.mon(3,0.5)
 get.crit.Q.mon <- function(k, m = Inf, alternative = "two.sided"){
-  load(file = "./data/criticalvalues.RData")
+  load(file = "./R/criticalvalues.RData")
   alphas <- as.numeric(colnames(Q.crit[[1]]))
   if(alternative == "one.sided") ( alphas <- alphas/2 )
   horizons <- as.numeric(rownames(Q.crit[[1]]))
@@ -130,7 +130,7 @@ get.crit.BQ <- function(k, alternative = "two.sided"){
 #' get.crit.SBQ.mon(1,Inf)
 #' get.crit.SBQ.mon(3,0.5)
 get.crit.SBQ.mon <- function(k, m = Inf, alternative = "two.sided"){
-  load(file = "./data/criticalvalues.RData")
+  load(file = "./R/criticalvalues.RData")
   alphas <- as.numeric(colnames(SBQ.crit[[1]]))
   if(alternative == "one.sided") ( alphas <- alphas/2 )
   horizons <- as.numeric(rownames(SBQ.crit[[1]]))
