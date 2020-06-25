@@ -34,5 +34,5 @@ The asymptotic critical values for the linear boundary \eqn{d(r) = 1+2r} are sim
 The critical values of the retrospective backward CUSUM coincide with those of the forward CUSUM for m=2.
 }
 \examples{
-sim.crit.Q(1)
+sim.crit.Q(1, m=Inf)
 }
