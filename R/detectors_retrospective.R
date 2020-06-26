@@ -240,3 +240,35 @@ SBQ.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL)
   }
   return(list(detector.scaled = round(detector.scaled,6), detector.array = round(detector.array,6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
 }
+
+
+
+#' Sup-Wald Test by Andrews (1993)
+#'
+#' Performs the Sup-Wald Test by Andrews (1993).
+#'
+#' @param formula Specification of the linear regression model by an object of the class "formula"
+#' @param eps Trimming parameter, eps = 0.15 is default.
+#'
+#' @return The sup-Wald test statistic
+#' @export
+#'
+#' @examples
+#' T <- 100
+#' u <- rnorm(T,0,1)
+#' x <- rnorm(T,1,2)
+#' y <- c(rep(0,T/2), rep(0.7,T/2)) + x + I(x^2) + u
+#' sup.wald(y~1+x+I(x^2))
+sup.wald <- function(formula, eps = 0.15){
+  X <- model.matrix(formula)
+  y <- model.frame(formula)[,1]
+  T <- dim(X)[1]
+  RSS0 <- deviance(lm(formula))
+  wald <- function(t){
+    RSS1 <- deviance(lm(y[1:t] ~ X[1:t,]))
+    RSS2 <- deviance(lm(y[(t+1):T] ~ X[(t+1):T,]))
+    return(T*(RSS0 - (RSS1 + RSS2))/(RSS1 + RSS2))
+  }
+  sapply(floor(eps*T):(T-floor(eps*T)), wald)
+  return(max(sapply(floor(eps*T):(T-floor(eps*T)), wald)))
+}
