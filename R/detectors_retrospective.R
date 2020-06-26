@@ -143,7 +143,7 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
     Q <- t(H) %*% Q
     k <- dim(H)[2]
   }
-  BQ <- cbind(Q[,T],Q[,T] - Q[,1:(T-1)])
+  BQ <- cbind(Q[,T],matrix(Q[,T] - Q[,1:(T-1)], nrow = k))
   # detector statistic
   if(alternative == "two.sided")( detector <- apply(abs(BQ), 2, max) )
   if(alternative == "less") ( detector <- apply(-BQ, 2, max) )
