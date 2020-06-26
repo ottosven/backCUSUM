@@ -1,3 +1,7 @@
+#' @import stats
+NULL
+
+
 #' Recursive residuals
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
@@ -181,7 +185,7 @@ get.crit.SBQ <- function(k, alternative = "two.sided"){
 #' @export
 #'
 #' @examples
-#' sim.crit.Q(1, m=Inf)
+#' sim.crit.Q(1, m=Inf, MC=100)
 sim.crit.Q <- function(k, m = 2,  MC = 1000, T = 10000, levels = c(0.1, 0.05, 0.01, 0.001), alternative = "two.sided", CORE = 1){
   r <- (1:T)/T
   boundary.transf <- 1+r
@@ -228,7 +232,7 @@ sim.crit.Q <- function(k, m = 2,  MC = 1000, T = 10000, levels = c(0.1, 0.05, 0.
 #' @export
 #'
 #' @examples
-#' sim.crit.SBQ(1, m=Inf)
+#' sim.crit.SBQ(1, m=Inf, MC=10)
 sim.crit.SBQ <- function(k, m = 2, MC = 100, T = 1000, levels = c(0.1, 0.05, 0.01, 0.001), alternative = "two.sided", CORE = 1){
   r <- (1:T)/T
   # boundary <- 1+2*(m-1)*r

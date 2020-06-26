@@ -4,7 +4,7 @@
 \alias{BQ.test}
 \title{Retrospective backward CUSUM test}
 \usage{
-BQ.test(formula, alternative = "two.sided", H = NULL, bound = NULL)
+BQ.test(formula, alternative = "two.sided", H = NULL)
 }
 \arguments{
 \item{formula}{Specification of the linear regression model by an object of the class "formula"}
@@ -14,8 +14,6 @@ The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), 
 
 \item{H}{An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
 \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).}
-
-\item{bound}{An optional vector that contains the values of a user specified boundary function. The linear boundary \eqn{d(r) = 1+2r} is considered as the default setting (NULL).}
 }
 \value{
 A list containung the following components:

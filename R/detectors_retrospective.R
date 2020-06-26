@@ -1,46 +1,3 @@
-#' CUSUM detector
-#'
-#' @param formula Specification of the linear regression model by an object of the class "formula"
-#'
-#' @return A vector containing the Forward CUSUM detector series
-#' @export
-#'
-#' @examples
-#' T <- 100
-#' u <- rnorm(T,0,1)
-#' y <- c(rep(0,T/2), rep(1,T/2)) + u
-#' Q.detector(y~1)
-Q.detector <- function(formula){
-  wt.tail <- strucchange::recresid(formula)
-  sigmahat <- sd(wt.tail)
-  k <- lm(formula)$rank
-  wt <- c(rep(0,k),wt.tail)
-  Qt <- abs(cumsum(wt))/sqrt(length(wt))/sigmahat
-  return(Qt)
-}
-
-#' Backward CUSUM detector
-#'
-#' @param formula Specification of the linear regression model by an object of the class "formula"
-#'
-#' @return A vector containing the Backward CUSUM detector series
-#' @export
-#'
-#' @examples
-#' T <- 100
-#' u <- rnorm(T,0,1)
-#' y <- c(rep(0,T/2), rep(1,T/2)) + u
-#' BQ.detector(y~1)
-BQ.detector <- function(formula){
-  wt.tail <- strucchange::recresid(formula)
-  sigmahat <- sd(wt.tail)
-  k <- lm(formula)$rank
-  wt <- c(rep(0,k),wt.tail)
-  BQt <- abs(sum(wt) - c(0,cumsum(wt)[-length(wt)]))/sqrt(length(wt))/sigmahat
-  return(BQt)
-}
-
-
 #' Retrospective forward CUSUM test
 #'
 #' Performs the multivariate forward CUSUM test in the retrospective contect using the linear boundary of Brown, Durbin, and Evans (1975)
@@ -50,7 +7,6 @@ BQ.detector <- function(formula){
 #' The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
-#' @param bound An optional vector that contains the values of a user specified boundary function. The linear boundary \eqn{d(r) = 1+2r} is considered as the default setting (NULL).
 #'
 #' @return A list containung the following components:
 #' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
@@ -69,7 +25,7 @@ BQ.detector <- function(formula){
 #' Q.test(y~1+x+I(x^2), alternative = "greater")
 #' H <- matrix(c(1,0,0), ncol = 1)
 #' Q.test(y~1+x+I(x^2), H = H)
-Q.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
+Q.test <- function(formula, alternative = "two.sided", H = NULL){
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
   Q <- get.cusumprocess(formula, T)
@@ -93,13 +49,6 @@ Q.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
     crit.val <- get.crit.Q(k, "one.sided")
   }
   rejection <- statistic > crit.val
-  # user specified boundary function
-  if(!is.null(bound)){
-    boundary <- bound
-    crit.val <- NA
-    rejection <- NA
-    statistic <- max(detector/boundary)
-  }
   return(list(detector = round(detector,6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
 }
 
@@ -115,7 +64,6 @@ Q.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
 #' The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
-#' @param bound An optional vector that contains the values of a user specified boundary function. The linear boundary \eqn{d(r) = 1+2r} is considered as the default setting (NULL).
 #'
 #' @return A list containung the following components:
 #' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
@@ -134,7 +82,7 @@ Q.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
 #' BQ.test(y~1+x+I(x^2), alternative = "greater")
 #' H <- matrix(c(1,0,0), ncol = 1)
 #' BQ.test(y~1+x+I(x^2), H = H)
-BQ.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
+BQ.test <- function(formula, alternative = "two.sided", H = NULL){
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
   Q <- get.cusumprocess(formula, T)
@@ -159,13 +107,6 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
     crit.val <- get.crit.BQ(k, "one.sided")
   }
   rejection <- statistic > crit.val
-  # user specified boundary function
-  if(!is.null(bound)){
-    boundary <- rev(bound)
-    crit.val <- NA
-    rejection <- NA
-    statistic <- max(detector/boundary)
-  }
   return(list(detector = round(detector,6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
 }
 
@@ -180,7 +121,6 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
 #' The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
-#' @param bound An optional vector that contains the values of a user specified boundary function. The linear boundary \eqn{d(r) = 1+2r} is considered as the default setting (NULL).
 #'
 #' @return A list containung the following components:
 #' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
@@ -200,7 +140,7 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
 #' SBQ.test(y~1+x+I(x^2), alternative = "greater")
 #' H <- matrix(c(1,0,0), ncol = 1)
 #' SBQ.test(y~1+x+I(x^2), H = H)
-SBQ.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL){
+SBQ.test <- function(formula, alternative = "two.sided", H = NULL){
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
   Q <- get.cusumprocess(formula, T)
@@ -229,15 +169,6 @@ SBQ.test <- function(formula, alternative = "two.sided", H = NULL, bound = NULL)
     crit.val <- get.crit.SBQ(k, "one.sided")
   }
   rejection <- statistic > crit.val
-  # user specified boundary function
-  if(!is.null(bound)){
-    boundary <- matrix(NA, ncol = T, nrow = T, dimnames = list(colnames(Q), colnames(Q)))
-    for(t in 1:T) ( boundary[1:t,t] <- bound[t-(1:t)+1] )
-    crit.val <- NA
-    rejection <- NA
-    detector.scaled <- apply(detector.array/boundary, 2, max, na.rm = TRUE)
-    statistic <- max(detector.scaled)
-  }
   return(list(detector.scaled = round(detector.scaled,6), detector.array = round(detector.array,6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
 }
 

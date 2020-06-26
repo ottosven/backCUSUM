@@ -2,7 +2,7 @@
 % Please edit documentation in R/detectors_monitoring.R
 \name{Q.monitoring}
 \alias{Q.monitoring}
-\title{Forward CUSUM monitoring procedure}
+\title{Forward CUSUM monitoring}
 \usage{
 Q.monitoring(formula, T, m = Inf, alternative = "two.sided", H = NULL)
 }
@@ -29,14 +29,14 @@ A list containung the following components:
 \item{boundary}{The vector containing the values of the boundary function}
 }
 \description{
-Performs multivariate forward CUSUM monitoring using the linear boundary of Brown, Durbin, and Evans (1975)
+Performs the multivariate forward CUSUM monitoring procedure using the linear boundary of Brown, Durbin, and Evans (1975)
 }
 \examples{
 T <- 100
 t <- 5*T
 u <- rnorm(t,0,1)
 x <- rnorm(t,1,2)
-y <- c(rep(0,480), rep(10,20)) + x + I(x^2) + u
+y <- c(rep(0,480), rep(5,20)) + x + I(x^2) + u
 Q.monitoring(y~1+x+I(x^2), T)
 Q.monitoring(y~1+x+I(x^2), T, alternative = "greater")
 H <- matrix(c(1,0,0), ncol = 1)

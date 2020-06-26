@@ -36,5 +36,5 @@ A vector of critical values for different significance levels.
 The asymptotic critical values for the linear boundary \eqn{d(r) = 1+2r} are simulated based on \eqn{MC} Monte Carlo replications, where the limiting process under the null hypothesis is approximated on a grid of \eqn{T} equidistant points.
 }
 \examples{
-sim.crit.SBQ(1, m=Inf)
+sim.crit.SBQ(1, m=Inf, MC=10)
 }
