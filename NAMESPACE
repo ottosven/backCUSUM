@@ -3,6 +3,7 @@
 export(BQ.detector)
 export(BQ.test)
 export(Q.detector)
+export(Q.monitoring)
 export(Q.test)
 export(Qmon.detector)
 export(SBQ.test)
