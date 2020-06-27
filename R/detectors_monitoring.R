@@ -30,7 +30,7 @@
 #' H <- matrix(c(1,0,0), ncol = 1)
 #' Q.monitoring(y~1+x+I(x^2), T, m=6, H = H)
 Q.monitoring <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
-  t <- dim(model.matrix(formula))[1]
+  n <- dim(model.matrix(formula))[1] #current time point
   k <- dim(model.matrix(formula))[2]
   Q <- get.cusumprocess(formula, T)
   # in case of a partial structural break test modify the process
@@ -39,11 +39,11 @@ Q.monitoring <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL)
     k <- dim(H)[2]
   }
   # detector statistic
-  if(alternative == "two.sided")( detector <- apply(abs(Q[,(T+1):t,drop=F]-Q[,T]), 2, max) )
-  if(alternative == "less") ( detector <- apply(-Q[,(T+1):t,drop=F]-Q[,T], 2, max) )
-  if(alternative == "greater") ( detector <- apply(Q[,(T+1):t,drop=F]-Q[,T], 2, max) )
+  if(alternative == "two.sided")( detector <- apply(abs(Q[,(T+1):n,drop=F]-Q[,T]), 2, max) )
+  if(alternative == "less") ( detector <- apply(-Q[,(T+1):n,drop=F]-Q[,T], 2, max) )
+  if(alternative == "greater") ( detector <- apply(Q[,(T+1):n,drop=F]-Q[,T], 2, max) )
   # boundary function
-  boundary <- 1+2*((T+1):t)/T
+  boundary <- 1+2*(1:(n-T))/T
   # maximum statistic
   statistic <- max(detector/boundary)
   # critical values and test decision
@@ -95,7 +95,7 @@ Q.monitoring <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL)
 #' H <- matrix(c(1,0,0), ncol = 1)
 #' SBQ.monitoring(y~1+x+I(x^2), T, m=6, H = H)
 SBQ.monitoring <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
-  t <- dim(model.matrix(formula))[1]
+  n <- dim(model.matrix(formula))[1]  #current time point
   k <- dim(model.matrix(formula))[2]
   Q <- get.cusumprocess(formula, T)
   # in case of a partial structural break test modify the process
@@ -103,15 +103,15 @@ SBQ.monitoring <- function(formula, T, m=Inf, alternative = "two.sided", H = NUL
     Q <- t(H) %*% Q
     k <- dim(H)[2]
   }
-  SBQ <- array(NA, dim=c(t,t,k), dimnames = list(colnames(Q), colnames(Q), rownames(Q)))
-  for(j in (T+1):t) (SBQ[(T+1):j,j,] <- t(Q[,j] - Q[,(T+1):j]))
+  SBQ <- array(NA, dim=c(n,n,k), dimnames = list(colnames(Q), colnames(Q), rownames(Q)))
+  for(t in (T+1):n) (SBQ[(T+1):t,t,] <- t(Q[,t] - Q[,T:(t-1)]))
   # detector statistic
   if(alternative == "two.sided")( detector.array <- apply(abs(SBQ), c(1,2), max) )
   if(alternative == "less") ( detector.array <- apply(-SBQ, c(1,2), max) )
   if(alternative == "greater") ( detector.array <- apply(SBQ, c(1,2), max) )
   # boundary function
-  boundary <- matrix(NA, ncol = t, nrow = t, dimnames = list(colnames(Q), colnames(Q)))
-  for(j in (T+1):t) ( boundary[(T+1):j,j] <- 1+2*(j-((T+1):j)+1)/T )
+  boundary <- matrix(NA, ncol = n, nrow = n, dimnames = list(colnames(Q), colnames(Q)))
+  for(j in (T+1):n) ( boundary[(T+1):j,j] <- 1+2*(j-((T+1):j)+1)/T )
   # maximum statistic
   detector.scaled <- apply(detector.array[-(1:T),-(1:T)]/boundary[-(1:T),-(1:T)], 2, max, na.rm = TRUE)
   statistic <- max(detector.scaled)
