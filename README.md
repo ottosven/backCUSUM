@@ -24,6 +24,24 @@ if (!require("devtools")){install.packages("devtools")}
 devtools::install_github("ottosven/backCUSUM")
 ```
 
+### Troubleshooting
+
+Error messages during installation may be due to the fact that the necessary compilers required to build packages are not installed:
+
+* Windows: Please make sure that Rtools are installed: https://cran.r-project.org/bin/windows/Rtools/.
+
+* Linux (Ubuntu-based):
+
+``` r
+apt-get install libcurl4-openssl-dev libxml2-dev libssl-dev g++ gfortran libblas-dev liblapack-dev liblapack3 libopenblas-base
+```
+
+* Linux (Arch-based):
+
+``` r
+sudo pacman -S gcc-fortran
+```
+
 ## Example
 
 This is a basic example to reproduce Figure 2 of the paper:
