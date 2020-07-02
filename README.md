@@ -26,7 +26,7 @@ remotes::install_github("ottosven/backCUSUM")
 
 ### Troubleshooting
 
-Error messages during installation may be due to the fact that the necessary compilers required to build packages are not installed:
+Error messages during installation may be due to the fact that the necessary compilers are not installed:
 
 * Windows: Please make sure that Rtools are installed: https://cran.r-project.org/bin/windows/Rtools/.
 
