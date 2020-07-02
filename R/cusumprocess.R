@@ -39,7 +39,7 @@ get.cusumprocess <- function(formula, T){
   wt <- get.recresid(formula)
   sig.hat <- sd(wt[1:T])
   X <- model.matrix(formula)
-  sqCTinv <- expm::sqrtm(solve((t(X) %*% X)/T))
+  sqCTinv <- expm::sqrtm(solve((t(X[1:T,]) %*% X[1:T,])/T))
   scores <- X * wt
   Q <- (sqCTinv %*% t(apply(scores, 2, cumsum)))/sig.hat/sqrt(T)
   rownames(Q) <- colnames(X)
