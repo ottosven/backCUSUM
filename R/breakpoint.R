@@ -18,10 +18,11 @@ breakpoint.est <- function(formula, type = "BQ", H = NULL){
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
   if(type == "BQ"){
-    Q <- get.cusumprocess(formula, T)
-    # in case of a partial structural breaks
-    if (!is.null(H)){
-      Q <- t(H) %*% Q
+    if (is.null(H)){
+      Q <- get.cusumprocess(formula, T)
+    } else {
+      Q <- get.partialcusum(formula, T, H)
+      k <- dim(H)[2]
     }
     BQ <- cbind(Q[,T],matrix(Q[,T] - Q[,1:(T-1)], nrow = k))
     break.est <- which.max(BQ/sqrt(T-(1:T)+1))

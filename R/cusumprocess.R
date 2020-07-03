@@ -71,7 +71,7 @@ get.partialcusum <- function(formula, T, H){
   partialregressors <- t(H) %*% t(X)
   sqCTinv <- expm::sqrtm(solve((partialregressors[,1:T, drop=F] %*% t(partialregressors[,1:T, drop=F]))/T))
   scores <- partialregressors * wt
-  Q <- (sqCTinv %*% apply(scores, 2, cumsum))/sig.hat/sqrt(T)
+  Q <- (sqCTinv %*% t(apply(scores, 1, cumsum)))/sig.hat/sqrt(T)
   return(Q)
 }
 
