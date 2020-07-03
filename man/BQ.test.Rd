@@ -17,11 +17,11 @@ The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), 
 }
 \value{
 A list containung the following components:
-\item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
-\item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
-\item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
 \item{detector}{The vector containing the path of the backward cusum detector}
 \item{boundary}{The vector containing the values of the boundary function}
+\item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
+\item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
+\item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 }
 \description{
 Performs the multivariate backward CUSUM test in the retrospective contect using the linear boundary \eqn{d(r) = 1+2r}.

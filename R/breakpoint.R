@@ -1,7 +1,7 @@
 #' Breakpoint estimation
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
-#' @param type A character string specifying the breakpoint estimator type; must be one of "BQ" (default) or "ML".
+#' @param type A character string specifying the breakpoint estimator type; must be one of "BQ" (backward CUSUM estimator, default) or "ML" (maximum likelihood estimator, see Bai (1997).
 #' @param H An optional matrix for the partial breaks. \eqn{H} must have orthonormal columns. The full structural break model is considered as the default setting (NULL).
 
 #'

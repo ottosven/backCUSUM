@@ -9,11 +9,11 @@
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
 #'
 #' @return A list containung the following components:
-#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
+#' \item{detector}{The vector containing the path of the forward cusum detector from T+1 onwards}
+#' \item{boundary}{The vector containing the values of the boundary function from T+1 onwards}
 #' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
 #' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
-#' \item{detector}{The vector containing the path of the forward cusum detector}
-#' \item{boundary}{The vector containing the values of the boundary function}
+#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 #' @export
 #'
 #' @examples
@@ -49,7 +49,7 @@ Q.test <- function(formula, alternative = "two.sided", H = NULL){
     crit.val <- get.crit.Q(k, "one.sided")
   }
   rejection <- statistic > crit.val
-  return(list(detector = round(detector,6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
+  return(list(detector = round(unname(detector),6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
 }
 
 
@@ -66,11 +66,11 @@ Q.test <- function(formula, alternative = "two.sided", H = NULL){
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
 #'
 #' @return A list containung the following components:
-#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
-#' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
-#' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
 #' \item{detector}{The vector containing the path of the backward cusum detector}
 #' \item{boundary}{The vector containing the values of the boundary function}
+#' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
+#' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
+#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 #' @export
 #'
 #' @examples
@@ -107,7 +107,7 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL){
     crit.val <- get.crit.BQ(k, "one.sided")
   }
   rejection <- statistic > crit.val
-  return(list(detector = round(detector,6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
+  return(list(detector = round(unname(detector),6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
 }
 
 
@@ -123,12 +123,12 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL){
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
 #'
 #' @return A list containung the following components:
-#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
+#' \item{detector.scaled}{The vector containing the path of the sequential scaled stacked backward cusum detector from T+1 onwards}
+#' \item{detector.array}{The matrix containing the triangular array of the stacked backward cusum detector}
+#' \item{boundary}{The matrix containing the values of the triangular boundary surface}
 #' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
 #' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
-#' \item{detector.array}{The matrix containing the triangular array of the stacked backward cusum detector}
-#' \item{detector.scaled}{The vector containing the path of the sequential scaled stacked backward cusum detector}
-#' \item{boundary}{The matrix containing the values of the triangular boundary surface}
+#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 #' @export
 #'
 #' @examples
@@ -169,7 +169,7 @@ SBQ.test <- function(formula, alternative = "two.sided", H = NULL){
     crit.val <- get.crit.SBQ(k, "one.sided")
   }
   rejection <- statistic > crit.val
-  return(list(detector.scaled = round(detector.scaled,6), detector.array = round(detector.array,6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
+  return(list(detector.scaled = round(unname(detector.scaled),6), detector.array = round(detector.array,6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
 }
 
 
