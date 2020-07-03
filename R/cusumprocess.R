@@ -65,17 +65,21 @@ get.cusumprocess <- function(formula, T){
 #' get.crit.Q.mon(1,Inf)
 #' get.crit.Q.mon(3,0.5)
 get.crit.Q.mon <- function(k, m = Inf, alternative = "two.sided"){
-  alphas <- as.numeric(colnames(Q.crit[[1]]))
-  if(alternative == "one.sided") ( alphas <- alphas/2 )
+  if(alternative == "one.sided"){
+    index <- c(1,2,4,6)
+  } else {
+    index <- c(2,3,5,7)
+  }
+  alphas <- c(0.1, 0.05, 0.01, 0.001)
   horizons <- as.numeric(rownames(Q.crit[[1]]))
   next.m <- which(horizons >= m)[1]
-  if(k <= 8){
-    critical <- Q.crit[[k]][next.m,]
+  if(k <= 30){
+    critical <- Q.crit[[k]][next.m,index]
   } else {
     critical <- rep(NA,length(alphas))
   }
   names(critical) <- alphas
-  return(list(critical.values = critical, m = horizons[next.m]))
+  return(list(crit = critical, m = horizons[next.m]))
 }
 
 
@@ -133,17 +137,21 @@ get.crit.BQ <- function(k, alternative = "two.sided"){
 #' get.crit.SBQ.mon(1,Inf)
 #' get.crit.SBQ.mon(3,0.5)
 get.crit.SBQ.mon <- function(k, m = Inf, alternative = "two.sided"){
-  alphas <- as.numeric(colnames(SBQ.crit[[1]]))
-  if(alternative == "one.sided") ( alphas <- alphas/2 )
+  if(alternative == "one.sided"){
+    index <- c(1,2,4,6)
+  } else {
+    index <- c(2,3,5,7)
+  }
+  alphas <- c(0.1, 0.05, 0.01, 0.001)
   horizons <- as.numeric(rownames(SBQ.crit[[1]]))
   next.m <- which(horizons >= m)[1]
-  if(k <= 8){
-    critical <- SBQ.crit[[k]][next.m,]
+  if(k <= 30){
+    critical <- SBQ.crit[[k]][next.m,index]
   } else {
     critical <- rep(NA,length(alphas))
   }
   names(critical) <- alphas
-  return(list(critical.values = critical, m = horizons[next.m]))
+  return(list(crit = critical, m = horizons[next.m]))
 }
 
 
