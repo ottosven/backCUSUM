@@ -48,6 +48,35 @@ get.cusumprocess <- function(formula, T){
 
 
 
+#' Partial CUSUM process
+#'
+#' @param formula Specification of the linear regression model by an object of the class "formula"
+#' @param T In the retropspective context: length of the sample. In the monitoring context: length of the training sample, where monitoring starts at T+1.
+#' @param H A matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}. \eqn{H} must have orthonormal columns.
+#'
+#' @return A matrix containing the partial forward CUSUM process \eqn{Q_T^*(r)}
+#' @export
+#'
+#' @examples
+#' T <- 100
+#' u <- rnorm(T,0,1)
+#' x <- rnorm(T,0,1)
+#' y <- c(rep(0,T/2), rep(1,T/2)) + x + u
+#' H <- matrix(c(1,0), ncol = 1)
+#' get.partialcusum(y~x, T, H=H)
+get.partialcusum <- function(formula, T, H){
+  wt <- get.recresid(formula)
+  sig.hat <- sd(wt[1:T])
+  X <- model.matrix(formula)
+  partialregressors <- t(H) %*% t(X)
+  sqCTinv <- expm::sqrtm(solve((partialregressors[,1:T, drop=F] %*% t(partialregressors[,1:T, drop=F]))/T))
+  scores <- partialregressors * wt
+  Q <- (sqCTinv %*% apply(scores, 2, cumsum))/sig.hat/sqrt(T)
+  return(Q)
+}
+
+
+
 #' Critical values for the forward CUSUM monitoring procedure
 #'
 #' Provides critical values for some selected combinations of k and m for the forward CUSUM monitoring procedure with the linear boundary \eqn{d(r) = 1+2r} for different significance levels.

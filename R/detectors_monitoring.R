@@ -115,9 +115,10 @@ Q.mon.lin <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
     k <- dim(H)[2]
   }
   # detector statistic
-  if(alternative == "two.sided")( detector <- apply(abs(Q[,(T+1):n,drop=F]-Q[,T]), 2, max) )
-  if(alternative == "less") ( detector <- apply(-Q[,(T+1):n,drop=F]-Q[,T], 2, max) )
-  if(alternative == "greater") ( detector <- apply(Q[,(T+1):n,drop=F]-Q[,T], 2, max) )
+  m.detector <- Q[,(T+1):n,drop=F]-Q[,T]
+  if(alternative == "two.sided")( detector <- apply(abs(m.detector), 2, max) )
+  if(alternative == "less") ( detector <- apply(-m.detector, 2, max) )
+  if(alternative == "greater") ( detector <- apply(m.detector, 2, max) )
   # boundary function
   boundary <- 1+2*(1:(n-T))/T
   # maximum statistic
