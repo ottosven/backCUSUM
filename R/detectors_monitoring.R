@@ -33,10 +33,10 @@
 SBQ.mon <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
   n <- dim(model.matrix(formula))[1]  #current time point
   k <- dim(model.matrix(formula))[2]
-  Q <- get.cusumprocess(formula, T)
-  # in case of a partial structural break test modify the process
-  if (!is.null(H)){
-    Q <- t(H) %*% Q
+  if (is.null(H)){
+    Q <- get.cusumprocess(formula, T)
+  } else {
+    Q <- get.partialcusum(formula, T, H)
     k <- dim(H)[2]
   }
   SBQ <- array(NA, dim=c(n,n,k), dimnames = list(colnames(Q), colnames(Q), rownames(Q)))
@@ -108,10 +108,10 @@ SBQ.mon <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
 Q.mon.lin <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
   n <- dim(model.matrix(formula))[1] #current time point
   k <- dim(model.matrix(formula))[2]
-  Q <- get.cusumprocess(formula, T)
-  # in case of a partial structural break test modify the process
-  if (!is.null(H)){
-    Q <- t(H) %*% Q
+  if (is.null(H)){
+    Q <- get.cusumprocess(formula, T)
+  } else {
+    Q <- get.partialcusum(formula, T, H)
     k <- dim(H)[2]
   }
   # detector statistic
@@ -167,7 +167,6 @@ Q.mon.lin <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
 Q.mon.csw <- function(formula, T, alpha = 0.05, alternative = "two.sided"){
   n <- dim(model.matrix(formula))[1] #current time point
   k <- dim(model.matrix(formula))[2]
-  # Q <- get.cusumprocess(formula, T)
   H <- matrix(c(1,numeric(k-1)), ncol = 1)
   detector <- Q.mon.lin(formula, T, alternative = alternative, H = H)$detector
   # boundary function

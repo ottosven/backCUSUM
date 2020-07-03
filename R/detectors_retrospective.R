@@ -28,10 +28,10 @@
 Q.test <- function(formula, alternative = "two.sided", H = NULL){
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
-  Q <- get.cusumprocess(formula, T)
-  # in case of a partial structural break test modify the process
-  if (!is.null(H)){
-    Q <- t(H) %*% Q
+  if (is.null(H)){
+    Q <- get.cusumprocess(formula, T)
+  } else {
+    Q <- get.partialcusum(formula, T, H)
     k <- dim(H)[2]
   }
   # detector statistic
@@ -85,10 +85,10 @@ Q.test <- function(formula, alternative = "two.sided", H = NULL){
 BQ.test <- function(formula, alternative = "two.sided", H = NULL){
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
-  Q <- get.cusumprocess(formula, T)
-  # in case of a partial structural break test modify the process
-  if (!is.null(H)){
-    Q <- t(H) %*% Q
+  if (is.null(H)){
+    Q <- get.cusumprocess(formula, T)
+  } else {
+    Q <- get.partialcusum(formula, T, H)
     k <- dim(H)[2]
   }
   BQ <- cbind(Q[,T],matrix(Q[,T] - Q[,1:(T-1)], nrow = k))
@@ -143,10 +143,10 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL){
 SBQ.test <- function(formula, alternative = "two.sided", H = NULL){
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
-  Q <- get.cusumprocess(formula, T)
-  # in case of a partial structural break test modify the process
-  if (!is.null(H)){
-    Q <- t(H) %*% Q
+  if (is.null(H)){
+    Q <- get.cusumprocess(formula, T)
+  } else {
+    Q <- get.partialcusum(formula, T, H)
     k <- dim(H)[2]
   }
   SBQ <- array(NA, dim=c(T,T,k), dimnames = list(colnames(Q), colnames(Q), rownames(Q)))
