@@ -3,7 +3,7 @@
 ## Supplement for
 ## "Backward CUSUM for Testing and Monitoring Structural Change"
 ## by Sven Otto and Jörg Breitung.
-## This R-script allows to reproduce Figure 5.
+## This R-script allows to reproduce Figure S1 of the supplementary material.
 ## ####################################################################
 ## ####################################################################
 rm(list=ls())
