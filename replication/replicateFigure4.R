@@ -3,7 +3,7 @@
 ## Supplement for
 ## "Backward CUSUM for Testing and Monitoring Structural Change"
 ## by Sven Otto and Jörg Breitung.
-## This R-script allows to reproduce Figure S1 of the supplementary material.
+## This R-script allows to reproduce Figure 4.
 ## ####################################################################
 ## ####################################################################
 rm(list=ls())
@@ -79,7 +79,7 @@ REJECTIONS2<-mcmapply(sim.dist2, 1:MC, mc.cores = CORE)
 ## ##################################
 ## Figure 5
 ## ##################################
-pdf('figure5.pdf')
+pdf('figure4.pdf')
 namesHist1 <- c('Forward CUSUM', 'Backward CUSUM', 'Stacked backward CUSUM')
 for(i in 1:dim(REJECTIONS1)[1]) ( hist(REJECTIONS1[i,]/T, breaks = 0:20/20, freq = FALSE, main= namesHist1[i], xlab ='time point of rejection', ylab = 'density', cex.lab = 1.5, cex.axis=1.7, cex.main = 2) )
 namesHist2 <- c('Stacked backward CUSUM', 'Forward CUSUM', 'Forward CUSUM (radical boundary)')
