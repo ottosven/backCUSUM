@@ -14,7 +14,7 @@ get.crit.SBQ.mon(k, m = Inf, alternative = "two.sided")
 \item{alternative}{A character string specifying the alternative hypothesis; must be one of "two.sided" (default) or "one.sided".}
 }
 \value{
-A list containung the following components:
+A list containing the following components:
 \item{critical.values}{A vector of critical values for different significance levels}
 \item{m}{The value for the length of the relative monitoring period m. If the critical values for the input value of m is not available, the next higher available value is considered.}
 }

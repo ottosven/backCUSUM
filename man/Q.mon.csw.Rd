@@ -17,7 +17,7 @@ Q.mon.csw(formula, T, alpha = 0.05, alternative = "two.sided")
 The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.}
 }
 \value{
-A list containung the following components:
+A list containing the following components:
 \item{detector}{The vector containing the path of the forward cusum detector from T+1 onwards}
 \item{boundary}{The vector containing the values of the boundary function from T+1 onwards}
 \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection}

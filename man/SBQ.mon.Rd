@@ -20,7 +20,7 @@ The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), 
 \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).}
 }
 \value{
-A list containung the following components:
+A list containing the following components:
 \item{detector.scaled}{The vector containing the path of the sequential scaled stacked backward cusum detector from T+1 onwards}
 \item{detector.array}{The matrix containing the triangular array of the stacked backward cusum detector}
 \item{boundary}{The matrix containing the values of the triangular boundary surface}

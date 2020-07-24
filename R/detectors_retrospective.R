@@ -8,7 +8,7 @@
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
 #'
-#' @return A list containung the following components:
+#' @return A list containing the following components:
 #' \item{detector}{The vector containing the path of the forward cusum detector from T+1 onwards}
 #' \item{boundary}{The vector containing the values of the boundary function from T+1 onwards}
 #' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
@@ -65,7 +65,7 @@ Q.test <- function(formula, alternative = "two.sided", H = NULL){
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
 #'
-#' @return A list containung the following components:
+#' @return A list containing the following components:
 #' \item{detector}{The vector containing the path of the backward cusum detector}
 #' \item{boundary}{The vector containing the values of the boundary function}
 #' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
@@ -122,7 +122,7 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL){
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
 #'
-#' @return A list containung the following components:
+#' @return A list containing the following components:
 #' \item{detector.scaled}{The vector containing the path of the sequential scaled stacked backward cusum detector from T+1 onwards}
 #' \item{detector.array}{The matrix containing the triangular array of the stacked backward cusum detector}
 #' \item{boundary}{The matrix containing the values of the triangular boundary surface}

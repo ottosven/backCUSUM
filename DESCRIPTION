@@ -6,7 +6,7 @@ Author: Sven Otto <sven.otto@uni-bonn.de>
 Maintainer: Sven Otto <sven.otto@uni-bonn.de>
 Description: This R package accompanies the paper "Backward CUSUM for Testing and Monitoring Structural Change" by Sven Otto and Jörg Breitung (arXiv:2003.02682).
 Imports: expm, stats, strucchange
-License: GPL-3
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1

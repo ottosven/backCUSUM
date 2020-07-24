@@ -20,7 +20,7 @@ The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), 
 \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).}
 }
 \value{
-A list containung the following components:
+A list containing the following components:
 \item{detector}{The vector containing the path of the forward cusum detector from T+1 onwards}
 \item{boundary}{The vector containing the values of the boundary function from T+1 onwards}
 \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}

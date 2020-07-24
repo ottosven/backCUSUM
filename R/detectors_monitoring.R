@@ -10,7 +10,7 @@
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
 #'
-#' @return A list containung the following components:
+#' @return A list containing the following components:
 #' \item{detector.scaled}{The vector containing the path of the sequential scaled stacked backward cusum detector from T+1 onwards}
 #' \item{detector.array}{The matrix containing the triangular array of the stacked backward cusum detector}
 #' \item{boundary}{The matrix containing the values of the triangular boundary surface}
@@ -86,7 +86,7 @@ SBQ.mon <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
 #' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
 #'
-#' @return A list containung the following components:
+#' @return A list containing the following components:
 #' \item{detector}{The vector containing the path of the forward cusum detector from T+1 onwards}
 #' \item{boundary}{The vector containing the values of the boundary function from T+1 onwards}
 #' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
@@ -148,7 +148,7 @@ Q.mon.lin <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
 #' @param alternative A character string specifying the alternative hypothesis; must be one of "two.sided" (default), "greater" or "less".
 #' The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
 #'
-#' @return A list containung the following components:
+#' @return A list containing the following components:
 #' \item{detector}{The vector containing the path of the forward cusum detector from T+1 onwards}
 #' \item{boundary}{The vector containing the values of the boundary function from T+1 onwards}
 #' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection}
