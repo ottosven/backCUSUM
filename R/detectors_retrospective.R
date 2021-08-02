@@ -200,6 +200,5 @@ sup.wald <- function(formula, eps = 0.15){
     RSS2 <- deviance(lm(y[(t+1):T] ~ X[(t+1):T,]))
     return(T*(RSS0 - (RSS1 + RSS2))/(RSS1 + RSS2))
   }
-  sapply(floor(eps*T):(T-floor(eps*T)), wald)
   return(max(sapply(floor(eps*T):(T-floor(eps*T)), wald)))
 }
