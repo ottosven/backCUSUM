@@ -40,7 +40,7 @@ SBQ.mon <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
     k <- dim(H)[2]
   }
   SBQ <- array(NA, dim=c(n,n,k), dimnames = list(colnames(Q), colnames(Q), rownames(Q)))
-  for (i in 1:k) (SBQ[T+1,(T+1):n, i] <- Q[i,(T+1):n])
+  for (i in 1:k) (SBQ[T+1,(T+1):n, i] <- Q[i,(T+1):n] - Q[i,T])
   for (t in (T+2):n) (SBQ[(T+2):t, t, ] <- t(Q[, t] - Q[, (T+1):(t - 1)]))
   # detector statistic
   if(alternative == "two.sided")( detector.array <- apply(abs(SBQ), c(1,2), max) )
