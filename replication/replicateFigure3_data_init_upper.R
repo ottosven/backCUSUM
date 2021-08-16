@@ -3,7 +3,7 @@
 ## Supplement for
 ## "Backward CUSUM for Testing and Monitoring Structural Change"
 ## by Sven Otto and Jörg Breitung.
-## This R-script allows to reproduce the critical values
+## This R-script allows to reproduce the critical values for the upper panels
 ## CRIT <- c(0.9376, 0.9376, 1.1875) for the simulation for Figure 3.
 ## ####################################################################
 ## ####################################################################

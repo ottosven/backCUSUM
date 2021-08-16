@@ -7,8 +7,8 @@
 ## ####################################################################
 ## ####################################################################
 rm(list=ls())
-start<-Sys.time()
-library(backCUSUM)  # install package with remotes::install_github("ottosven/backCUSUM")
+start = Sys.time()
+library(backCUSUM)
 library(parallel)
 ## ##################################
 ## Cluster setup
@@ -16,8 +16,8 @@ library(parallel)
 if(is.na(strtoi(Sys.getenv(c("SLURM_NTASKS"))))){
   cl = makeCluster(detectCores()-1)
 } else {
-  ntasks <- strtoi(Sys.getenv(c("SLURM_NTASKS")))
-  nslaves <- ntasks-1
+  ntasks = strtoi(Sys.getenv(c("SLURM_NTASKS")))
+  nslaves = ntasks-1
   cl = makeCluster(nslaves, type="MPI")
 }
 ## ##################################
@@ -29,57 +29,44 @@ snow::clusterSetupRNG(cl)
 ## ##################################
 ## Simulation setting
 ## ##################################
-MC <- 100000
-## ## ##################################
-simM1 <- function(T){
-  u <- rnorm(T,0,1)
-  y <- 2 + u
-  model <- y ~ 1
-  return(c(
-    backCUSUM::Q.test(model)$statistic,
-    backCUSUM::BQ.test(model)$statistic,
-    backCUSUM::SBQ.test(model)$statistic
-  ))
-}
-##
-simM2 <- function(T){
-  u <- rnorm(T,0,1)
-  x <- rnorm(T,0,1)
-  y <- 2 + x + u
-  model <- y ~ 1 + x
-  return(c(
-    backCUSUM::Q.test(model)$statistic,
-    backCUSUM::BQ.test(model)$statistic,
-    backCUSUM::SBQ.test(model)$statistic
-  ))
-}
-##
-sim.size <- function(T,k){
-  crit <- c(get.crit.Q(k)[2], get.crit.BQ(k)[2], get.crit.SBQ(k)[2])
-  if(k == 1){
-    Statistics <- parSapply(cl,rep(T,MC), simM1)
-  } else {
-    Statistics <- parSapply(cl,rep(T,MC), simM2)
+MC <- 100000 # number of Monte Carlo repetitions
+T <- 50000  # grid on which the Wiener process is approximated
+k = 5 # number of dimensions
+## ###################################
+sim.SBQinf = function(T,k){
+  BrownianMotion = function(T)  ( cumsum(rnorm(T,0,sqrt(1/T))) )
+  get.innermax = function(t,B) max(abs((1-(0:(t-1))/T)*B[t]-(1-t/T)*c(0,B[1:(t-1)]))/((1-t/T)*(1-(0:(t-1))/T)*sqrt(1/(1-t/T))*(1+2*((1/(1-t/T))-1/(1-(0:(t-1))/T)))))
+  detector.dim = function(j){
+    W = BrownianMotion(T)
+    B = W-((1:T)/T)*W[T]
+    max(sapply(1:(T-1), get.innermax, B=B))
   }
-  size <- c(
-    length(which(Statistics[1,] > crit[1]))/MC,
-    length(which(Statistics[2,] > crit[2]))/MC,
-    length(which(Statistics[3,] > crit[3]))/MC
-  )
-  return(size)
+  return(cummax(sapply(1:k,detector.dim)))
 }
 ##
-size.100.M1 <- sim.size(100,1)
-size.200.M1 <- sim.size(200,1)
-size.500.M1 <- sim.size(500,1)
-size.100.M2 <- sim.size(100,2)
-size.200.M2 <- sim.size(200,2)
-size.500.M2 <- sim.size(500,2)
+sim.Q = function(T,k){
+  BrownianMotion = function(T)  ( cumsum(rnorm(T,0,sqrt(1/T))) )
+  detector.dim = function(i){
+    W = BrownianMotion(T)
+    B = W-((1:T)/T)*W[T]
+    r=(1:(T-1))/T
+    r.tr = r/(1-r)
+    max(abs(B[1:(T-1)])/( (1-r)*(1+2*r.tr)))
+  }
+  cummax(sapply(1:k,detector.dim))
+}
 ##
-resultsM1 <- c(size.100.M1, size.200.M1, size.500.M1)
-resultsM2 <- c(size.100.M2, size.200.M2, size.500.M2)
-table3 <- matrix(c(resultsM1, resultsM2), nrow = 2, byrow = TRUE, dimnames = list(c("Model I", "Model II"), rep(c("Q", "BQ", "SBQ"),3)))
-table3
-write.table(table3,file="./results/Table3.csv", col.names=NA)
+out.SBQ = parSapply(cl,rep(T,MC),sim.SBQinf,k=k)
+result.SBQ = apply(out.SBQ,1,quantile,c(0.9, 0.95, 0.99))
+out.Q = parSapply(cl,rep(T,MC),sim.Q, k=k)
+result.Q = apply(out.Q, 1, quantile, c(0.9, 0.95, 0.99))
+##
+result = cbind(result.SBQ, result.Q)
+colnames(result) = paste(rep(c("SBQ","Q"),each=k),".k=",rep(1:k,2),sep="")
+rownames(result) = paste("alpha=",c(10,5,1),"%",sep="")
+result
+##
+write.csv(round(result,3), file="./results/Table3.csv")
+##
 Sys.time()-start
 stopCluster(cl)

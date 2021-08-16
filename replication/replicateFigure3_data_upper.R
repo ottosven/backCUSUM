@@ -3,7 +3,7 @@
 ## Supplement for
 ## "Backward CUSUM for Testing and Monitoring Structural Change"
 ## by Sven Otto and Jörg Breitung.
-## This R-script allows to reproduce the simulation for Figure 3.
+## This R-script allows to reproduce the simulated data for the upper panels of Figure 3.
 ## ####################################################################
 ## ####################################################################
 rm(list=ls())
@@ -29,7 +29,7 @@ MC <- 10
 T <- 1000
 ## Simulated critical values:
 CRIT <- c(0.9376, 0.9376, 1.1875)
-## Simulated critical values can be replicated using replicateFigure3_data_init.R
+## Simulated critical values can be replicated using replicateFigure3_data_init_upper.R
 ##
 BrownianMotion <- function(T)  ( cumsum(rnorm(T,0,sqrt(1/T))) )
 ##

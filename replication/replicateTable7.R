@@ -45,7 +45,7 @@ sim.mse <- function(taustar, T){
   statnames <- c('BQ', 'ML')
   Bias <- rowMeans(Statistics/T - taustar)
   names(Bias) <- statnames
-  MSE <- rowMeans((Statistics/T-taustar)^2)
+  MSE <- sqrt(rowMeans((Statistics/T-taustar)^2))
   names(MSE) <- statnames
   rbind(Bias, MSE)
 }
@@ -53,22 +53,22 @@ sim.mse <- function(taustar, T){
 result <- lapply(breakpoints, T = 100, sim.mse)
 BiasMSE <- matrix(ncol = 4, nrow = length(breakpoints))
 rownames(BiasMSE) <- breakpoints
-colnames(BiasMSE) <- c('BQ (Bias)', 'ML (Bias)', 'BQ (MSE)', 'ML (MSE)')
+colnames(BiasMSE) <- c('BQ (Bias)', 'ML (Bias)', 'BQ (RMSE)', 'ML (RMSE)')
 for(i in 1:length(breakpoints)){
   BiasMSE[i,c(1,2)] <- result[[i]][1,]
   BiasMSE[i,c(3,4)] <- result[[i]][2,]
 }
-results100 <- round(BiasMSE,3)
+results100 <- round(BiasMSE,2)
 ##
 result <- lapply(breakpoints, T = 200, sim.mse)
 BiasMSE <- matrix(ncol = 4, nrow = length(breakpoints))
 rownames(BiasMSE) <- breakpoints
-colnames(BiasMSE) <- c('BQ (Bias)', 'ML (Bias)', 'BQ (MSE)', 'ML (MSE)')
+colnames(BiasMSE) <- c('BQ (Bias)', 'ML (Bias)', 'BQ (RMSE)', 'ML (RMSE)')
 for(i in 1:length(breakpoints)){
   BiasMSE[i,c(1,2)] <- result[[i]][1,]
   BiasMSE[i,c(3,4)] <- result[[i]][2,]
 }
-results200 <- round(BiasMSE,3)
+results200 <- round(BiasMSE,2)
 ##
 table7 <- cbind(results100, results200)
 table7

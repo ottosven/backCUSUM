@@ -3,7 +3,7 @@
 ## Supplement for
 ## "Backward CUSUM for Testing and Monitoring Structural Change"
 ## by Sven Otto and Jörg Breitung.
-## This R-script allows to reproduce Table 3.
+## This R-script allows to reproduce Table 4.
 ## ####################################################################
 ## ####################################################################
 rm(list=ls())
@@ -29,80 +29,78 @@ snow::clusterSetupRNG(cl)
 ## ##################################
 ## Simulation setting
 ## ##################################
-taustars <- 1:9/10
-MC <- 100000
+MC = 100000
 ## ## ##################################
 simM1 <- function(T, tstar = 1){
-  u <- rnorm(T,0,1)
-  y <- 2 + u + c(rep(0,floor(tstar*T)),rep(0.8,floor((1-tstar)*T)))
+  e = rnorm(T,0,1)
+  y = c(rep(0,floor(tstar*T)),rep(0.8,floor((1-tstar)*T))) + e
   model <- y ~ 1
   return(c(
-    backCUSUM::Q.test(model)$statistic,
     backCUSUM::BQ.test(model)$statistic,
     backCUSUM::SBQ.test(model)$statistic,
+    backCUSUM::Q.test(model)$statistic,
     backCUSUM::sup.wald(model)
   ))
 }
 ##
 simM2 <- function(T, tstar = 1){
-  u <- rnorm(T,0,1)
-  x <- rnorm(T,0,1)
-  y <- 2 + x + u + x*c(rep(0,floor(tstar*T)),rep(0.8,floor((1-tstar)*T)))
+  e = rnorm(T,0,1)
+  x=filter(rnorm(T,0,1),0.5,"recursive")
+  y=1 + x*c(rep(0,floor(tstar*T)),rep(0.8,floor((1-tstar)*T)))+e
   model <- y ~ 1 + x
   return(c(
-    backCUSUM::Q.test(model)$statistic,
     backCUSUM::BQ.test(model)$statistic,
     backCUSUM::SBQ.test(model)$statistic,
+    backCUSUM::Q.test(model)$statistic,
     backCUSUM::sup.wald(model)
   ))
 }
 ##
-sim.crit <- function(T,k){
-  if(k == 1){
-    Statistics <- parSapply(cl,rep(T,MC), simM1)
-    CRIT <- c(
-      quantile(Statistics[1,], 0.95),
-      quantile(Statistics[2,], 0.95),
-      quantile(Statistics[3,], 0.95),
-      quantile(Statistics[4,], 0.95)
-    )
-  } else {
-    Statistics <- parSapply(cl,rep(T,MC), simM2)
-    CRIT <- c(
-      quantile(Statistics[1,], 0.95),
-      quantile(Statistics[2,], 0.95),
-      quantile(Statistics[3,], 0.95),
-      quantile(Statistics[4,], 0.95)
-    )
-  }
-  return(CRIT)
+simM3 <- function(T, tstar = 1){
+  e = rnorm(T,0,1)
+  emu = e + c(rep(0,floor(tstar*T)),rep(0.8,floor((1-tstar)*T)))
+  y=filter(emu,0.5,"recursive")
+  model1 = y[2:T] ~ 1 + y[1:(T-1)]
+  H = matrix(c(1,0), ncol = 1)
+  return(c(
+    backCUSUM::BQ.test(model1,H=H)$statistic,
+    backCUSUM::SBQ.test(model1,H=H)$statistic,
+    backCUSUM::Q.test(model1,H=H)$statistic,
+    backCUSUM::sup.wald(model1)
+  ))
 }
 ##
-sim.pow <- function(taustar,T,k,crit){
-  if(k == 1){
-    Statistics <- parSapply(cl,rep(T,MC), simM1, tstar = taustar)
+sim.sizepow <- function(T,j,tstar){
+  if(j == 1){
+    Statistics <- parSapply(cl,rep(T,MC), simM1, tstar = tstar)
+    crit = c(0.947, 1.202, 0.947, 8.85)
+  } else if(j==2){
+    Statistics <- parSapply(cl,rep(T,MC), simM2, tstar = tstar)
+    crit = c(1.034, 1.274, 1.034, 11.79)
   } else {
-    Statistics <- parSapply(cl,rep(T,MC), simM2, tstar = taustar)
+    Statistics <- parSapply(cl,rep(T,MC), simM3, tstar = tstar)
+    crit = c(0.947, 1.202, 0.947, 11.79)
   }
-  power <- c(
-    length(which(Statistics[1,] > crit[1]))/MC,
-    length(which(Statistics[2,] > crit[2]))/MC,
-    length(which(Statistics[3,] > crit[3]))/MC,
-    length(which(Statistics[4,] > crit[4]))/MC
-  )
-  return(power)
+  rejections = function(j) (length(which(Statistics[j,] > crit[j]))/MC)
+  size = sapply(1:length(crit),rejections)
+  return(size)
 }
 ##
-crit1 <- sim.crit(100,1)
-crit2 <- sim.crit(100,2)
-pow1 <- lapply(taustars, T = 100, k = 1, crit = crit1, sim.pow)
-pow2 <- lapply(taustars, T = 100, k = 2, crit = crit2, sim.pow)
-table4 <- matrix(ncol= 8, nrow = length(taustars), dimnames = list(taustars, rep(c("Q", "BQ", "SBQ", "supW"),2)))
-for(i in 1:length(taustars)){
-  table4[i, 1:4] <- pow1[[i]]
-  table4[i, 5:8] <- pow2[[i]]
-}
-table4
-write.table(table4,file="./results/Table4.csv", col.names=NA)
+taustars <- c(0, 0.1, 0.4, 0.6, 0.9)
+M1.l = lapply(taustars, T = 200, j=1,  sim.sizepow)
+M2.l = lapply(taustars, T = 200, j=2,  sim.sizepow)
+M3.l = lapply(taustars, T = 200, j=3,  sim.sizepow)
+##
+rnames = c("size", taustars[-1])
+cnames = c("BQ","SBQ","Q","supW")
+##
+M1 = matrix(unlist(M1.l), nrow = length(taustars), byrow=TRUE, dimnames = list(rnames, cnames))
+M2 = matrix(unlist(M2.l), nrow = length(taustars), byrow=TRUE, dimnames = list(rnames, cnames))
+M3 = matrix(unlist(M3.l), nrow = length(taustars), byrow=TRUE, dimnames = list(rnames, cnames))
+##
+table = round(cbind(M1,M2,M3)*100,1)
+table
+write.csv(table,file="./results/Table4.csv")
+##
 Sys.time()-start
 stopCluster(cl)

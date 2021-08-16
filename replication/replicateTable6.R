@@ -8,7 +8,7 @@
 ## ####################################################################
 rm(list=ls())
 start<-Sys.time()
-library(backCUSUM)  # install package with remotes::install_github("ottosven/backCUSUM")
+library(backCUSUM)
 library(parallel)
 ## ##################################
 ## Cluster setup
@@ -29,131 +29,219 @@ snow::clusterSetupRNG(cl)
 ## ##################################
 ## Simulation setting
 ## ##################################
-MC <- 100000
-## ##################################
-##
-sim1.H0 <- function(T){
-  m <- 20
+MC = 100000
+###############################
+simM1 <- function(T, m=10, tstar=m){
   mT <- floor(m*T)
-  u <- rnorm(mT,0,1)
-  y <- 2 + u
+  fremdt.detector <- function(formula, T){
+    X = model.matrix(formula)
+    y.mod = eval(formula[[2]])
+    n <- length(y.mod)  #end of monitoring
+    trainingfit = lm(y.mod[1:T] ~ X[1:T] - 1)
+    coef = trainingfit$coefficients
+    olsresid = y.mod - X %*% coef
+    olsQ = cumsum(olsresid)
+    pageQ = matrix(NA, nrow = n, ncol = n)
+    for(t in (T+1):n) (pageQ[(T+1):t,t] <- abs(olsQ[t] - olsQ[T:(t-1)]))
+    detector = apply(pageQ[-(1:T),-(1:T)],2,max,na.rm=TRUE)
+    detector/sd(trainingfit$residuals)
+  }
+  sbq.detector <- function(model, T){
+    boundary = matrix(NA, ncol = mT, nrow = mT)
+    for(j in (T+1):mT){
+      r=j/T
+      S=(T:(j-1))/T
+      boundary[(T+1):j,j] = (1+2*(r-S))*sqrt(r)
+    }
+    Q <- backCUSUM::get.cusumprocess(model, T)
+    SBQ = matrix(NA, nrow = mT, ncol = mT)
+    for(t in (T+1):mT) (SBQ[(T+1):t,t] <- abs(Q[t] - Q[T:(t-1)]))
+    detector.array = SBQ/boundary
+    SBQ = apply(detector.array[-(1:T),-(1:T)],2,max,na.rm=TRUE)
+    return(SBQ)
+  }
+  ##
+  e = rnorm(mT,0,1)
+  y = c(rep(0,floor(tstar*T)),rep(0.8,floor((m-tstar)*T))) + e
   model <- y ~ 1
-  SBQ <- backCUSUM::SBQ.mon(model, T)$detector.scaled
+  ##
+  SBQ = sbq.detector(model, T)
   Q.det <- backCUSUM::Q.mon.lin(model, T)$detector
   r <- (1:mT)/T
   boundary.lin <- 1+2*(r-1)[(T+1):mT]
   Q <- Q.det/boundary.lin
-  boundary.CSW <- sqrt(r[(T+1):mT]*(log(r[(T+1):mT]/0.05^2)))
-  CSW <- Q.det/boundary.CSW
-  result <- c(max(SBQ), max(Q), max(CSW))
-}
-##
-sim1.H1 <- function(T, taustar, crit){
-  m <- 20
-  mT <- floor(m*T)
-  u <- rnorm(mT,0,1)
-  brea <- floor(taustar*T)
-  y <- c(rep(2,brea),rep(2+0.8,mT-brea)) + u
-  model <- y ~ 1
-  SBQ <- backCUSUM::SBQ.mon(model, T)$detector.scaled
-  Q.det <- backCUSUM::Q.mon.lin(model, T)$detector
-  r <- (1:mT)/T
-  boundary.lin <- 1+2*(r-1)[(T+1):mT]
-  Q <- Q.det/boundary.lin
-  boundary.CSW <- sqrt(r[(T+1):mT]*(log(r[(T+1):mT]/0.05^2)))
-  CSW <- Q.det/boundary.CSW
+  CSW.out = backCUSUM::Q.mon.csw(model,T)
+  CSW=CSW.out$detector/CSW.out$boundary
+  fremdt = fremdt.detector(model, T)
+  k.fr = 1:(length(y)-T)
+  fremdt2 = fremdt/(sqrt(T)*(1+k.fr/T)*(k.fr/(k.fr+T))^0.25)
   result <- unname(c(
-    which(SBQ > crit[1])[1] + T,
-    which(Q > crit[2])[1] + T,
-    which(CSW > crit[3])[1] + T
+    which(SBQ > 0.976)[1] + T,
+    which(Q > 0.958)[1] + T,
+    which(CSW > 1)[1] + T,
+    which(fremdt2 > 2.4296)[1] + T
   ))
-  return(result)
+  result
 }
 ##
-sim2.H0<- function(T){
-  m <- 20
+simM2 <- function(T, m=10, tstar=m){
   mT <- floor(m*T)
-  u <- rnorm(mT,0,1)
-  x <- rnorm(mT,0,1)
-  y <- 2 + x + u
+  fremdt.detector <- function(formula, T){
+    X = model.matrix(formula)
+    y.mod = eval(formula[[2]])
+    n <- length(y.mod)  #end of monitoring
+    trainingfit = lm(y.mod[1:T] ~ X[1:T,] - 1)
+    coef = trainingfit$coefficients
+    olsresid = y.mod - X %*% coef
+    olsQ = cumsum(olsresid)
+    pageQ = matrix(NA, nrow = n, ncol = n)
+    for(t in (T+1):n) (pageQ[(T+1):t,t] <- abs(olsQ[t] - olsQ[T:(t-1)]))
+    detector = apply(pageQ[-(1:T),-(1:T)],2,max,na.rm=TRUE)
+    detector/sd(trainingfit$residuals)
+  }
+  sbq.detector <- function(model, T){
+    boundary = matrix(NA, ncol = mT, nrow = mT)
+    for(j in (T+1):mT){
+      r=j/T
+      S=(T:(j-1))/T
+      boundary[(T+1):j,j] = (1+2*(r-S))*sqrt(r)
+    }
+    Q <- backCUSUM::get.cusumprocess(model, T)
+    SBQ = matrix(NA, nrow = mT, ncol = mT)
+    for(t in (T+1):mT) (SBQ[(T+1):t,t] <- apply(abs(Q[,t] - Q[,T:(t-1),drop=F]),2,max))
+    detector.array = SBQ/boundary
+    SBQ = apply(detector.array[-(1:T),-(1:T)],2,max,na.rm=TRUE)
+    return(SBQ)
+  }
+  ##
+  e = rnorm(mT,0,1)
+  x=filter(rnorm(mT,0,1),0.5,"recursive")
+  y=1 + x*c(rep(0,floor(tstar*T)),rep(0.8,floor((m-tstar)*T)))+e
   model <- y ~ 1 + x
-  SBQ <- backCUSUM::SBQ.mon(model, T)$detector.scaled
+  ##
+  SBQ = sbq.detector(model, T)
+  Q.det <- backCUSUM::Q.mon.lin(model, T)$detector
   r <- (1:mT)/T
   boundary.lin <- 1+2*(r-1)[(T+1):mT]
-  Q <- backCUSUM::Q.mon.lin(model, T)$detector/boundary.lin
-  return(c(max(SBQ), max(Q)))
+  Q <- Q.det/boundary.lin
+  CSW.out = backCUSUM::Q.mon.csw(model,T)
+  CSW=CSW.out$detector/CSW.out$boundary
+  fremdt = fremdt.detector(model, T)
+  k.fr = 1:(length(y)-T)
+  fremdt2 = fremdt/(sqrt(T)*(1+k.fr/T)*(k.fr/(k.fr+T))^0.25)
+  result <- unname(c(
+    which(SBQ > 1.036)[1] + T,
+    which(Q > 1.044)[1] + T,
+    which(CSW > 1)[1] + T,
+    which(fremdt2 > 2.4296)[1] + T
+  ))
+  result
 }
 ##
-sim2.H1<- function(T, taustar, crit){
-  m <- 20
+simM3 <- function(T, m=10, tstar=m){
   mT <- floor(m*T)
-  u <- rnorm(mT,0,1)
-  x <- rnorm(mT,0,1)
-  brea <- floor(taustar*T)
-  y <- 2 + c(rep(1,brea),rep(1+0.8,mT-brea))*x + u
-  model <- y ~ 1 + x
-  SBQ <- backCUSUM::SBQ.mon(model, T)$detector.scaled
-  r <- (1:mT)/T
-  boundary.lin <- 1+2*(r-1)[(T+1):mT]
-  Q <- backCUSUM::Q.mon.lin(model, T)$detector/boundary.lin
-  return(c(
-    which(SBQ > crit[1])[1] + T,
-    which(Q > crit[2])[1] + T)
+  fremdt.detector <- function(formula, T){
+    X = model.matrix(formula)
+    y.mod = eval(formula[[2]])
+    n <- length(y.mod)  #end of monitoring
+    trainingfit = lm(y.mod[1:T] ~ X[1:T,] - 1)
+    coef = trainingfit$coefficients
+    olsresid = y.mod - X %*% coef
+    olsQ = cumsum(olsresid)
+    pageQ = matrix(NA, nrow = n, ncol = n)
+    for(t in (T+1):n) (pageQ[(T+1):t,t] <- abs(olsQ[t] - olsQ[T:(t-1)]))
+    detector = apply(pageQ[-(1:T),-(1:T)],2,max,na.rm=TRUE)
+    detector/sd(trainingfit$residuals)
+  }
+  sbq.detector <- function(model, T){
+    boundary = matrix(NA, ncol = mT-1, nrow = mT-1)
+    for(j in (T+1):(mT-1)){
+      r=j/T
+      S=(T:(j-1))/T
+      boundary[(T+1):j,j] = (1+2*(r-S))*sqrt(r)
+    }
+    Q <- backCUSUM::get.cusumprocess(model, T)
+    Q=Q[1,]
+    SBQ = matrix(NA, nrow = mT-1, ncol = mT-1)
+    for(t in (T+1):(mT-1)) (SBQ[(T+1):t,t] <- abs(Q[t] - Q[T:(t-1)]))
+    detector.array = SBQ/boundary
+    SBQ = apply(detector.array[-(1:T),-(1:T)],2,max,na.rm=TRUE)
+    return(SBQ)
+  }
+  ##
+  e = rnorm(mT,0,1)
+  emu = e + c(rep(0,floor(tstar*T)),rep(0.8,floor((m-tstar)*T)))
+  y=filter(emu,0.5,"recursive")
+  model = y[2:mT] ~ 1 + y[1:(mT-1)]
+  H = matrix(c(1,0), ncol = 1)
+  ##
+  SBQ = sbq.detector(model, T)
+  Q.det <- backCUSUM::Q.mon.lin(model, T, H=H)$detector
+  r <- (1:(mT-1))/T
+  boundary.lin <- 1+2*(r-1)[(T+1):(mT-1)]
+  Q <- Q.det/boundary.lin
+  CSW.out = backCUSUM::Q.mon.csw(model,T)
+  CSW=CSW.out$detector/CSW.out$boundary
+  fremdt = fremdt.detector(model, T)
+  k.fr = 1:(length(y)-1-T)
+  fremdt2 = fremdt/(sqrt(T)*(1+k.fr/T)*(k.fr/(k.fr+T))^0.25)
+  result <- unname(c(
+    which(SBQ > 0.976)[1] + T,
+    which(Q > 0.958)[1] + T,
+    which(CSW > 1)[1] + T,
+    which(fremdt2 > 2.4296)[1] + T
+  ))
+  result
+}
+##
+sim.sizedel <- function(T,j,m,tstar){
+  if(j == 1){
+    Statistics = parSapply(cl,rep(T,MC), simM1, m=m, tstar = tstar)
+  } else if(j==2){
+    Statistics <- parSapply(cl,rep(T,MC), simM2, m=m, tstar = tstar)
+  } else {
+    Statistics <- parSapply(cl,rep(T,MC), simM3, m=m, tstar = tstar)
+  }
+  rejectionrates = list()
+  CDI = list() # correct detections indices
+  delays = list()
+  for(i in 1:4){
+    rejectionrates[[i]] = sum(!is.na(Statistics[i,]))/MC
+    CDI[[i]] = which(Statistics[i,] > (tstar*T))
+    delays[[i]] = mean(Statistics[i,CDI[[i]]] - (tstar*T))
+  }
+  return(
+    c(
+      unlist(rejectionrates),
+      unlist(delays)
+    )
   )
 }
 ##
-sim.crit <- function(T,k){
-  if(k == 1){
-    Statistics <- parSapply(cl,rep(T,MC), sim1.H0)
-    CRIT <- c(
-      quantile(Statistics[1,], 0.95),
-      quantile(Statistics[2,], 0.95),
-      quantile(Statistics[3,], 0.95)
-    )
-  } else {
-    Statistics <- parSapply(cl,rep(T,MC), sim2.H0)
-    CRIT <- c(
-      quantile(Statistics[1,], 0.95),
-      quantile(Statistics[2,], 0.95)
-    )
-  }
-  return(CRIT)
-}
+m=10
+taustars = c(m, 1.5, 2, 4, 6)
+M1.l = lapply(taustars, T = 200, j=1, m=m, sim.sizedel)
+M2.l = lapply(taustars, T = 200, j=2, m=m, sim.sizedel)
+M3.l = lapply(taustars, T = 200, j=3, m=m, sim.sizedel)
 ##
-sim.pow <- function(T,k,crit){
-  taustar <- c(1.5, 2, 2.5, 3, 5, 10)
-  if(k == 1){
-    delay <- matrix(nrow = 6, ncol = 3)
-    rownames(delay) <- taustar
-    colnames(delay) <- c(paste('SBQ',k) , paste('Q',k), 'CSW')
-    for(i in 1:6){
-      Statistics <- parSapply(cl,rep(T,MC), sim1.H1, taustar = taustar[i], crit = crit)
-      for(j in 1:3){
-        CDI <- which(Statistics[j,] > (taustar*T)[i]) # correct detections indices
-        delay[i,j] <- mean(Statistics[j,CDI] - (taustar*T)[i])
-      }
-    }
-  } else {
-    delay <- matrix(nrow = 6, ncol = 2)
-    rownames(delay) <- taustar
-    colnames(delay) <- c(paste('SBQ',k) , paste('Q',k))
-    for(i in 1:6){
-      Statistics <- parSapply(cl,rep(T,MC), sim2.H1, taustar = taustar[i], crit = crit)
-      for(j in 1:2){
-        CDI <- which(Statistics[j,] > (taustar*T)[i]) # correct detections indices
-        delay[i,j] <- mean(Statistics[j,CDI] - (taustar*T)[i])
-      }
-    }
-  }
-  return(delay)
-}
+rnames = c("size", taustars[-1])
+cnames = rep(c("SBQ","Q","CSW","FR"),2)
 ##
-crit1 <- sim.crit(100,1)
-crit2 <- sim.crit(100,2)
-pow1 <- sim.pow(100,1,crit1)
-pow2 <- sim.pow(100,2,crit2)
-table6 <- cbind(pow1[1:3,], pow2[1:3,], pow1[4:6,], pow2[4:6,])
-table6
-write.table(table6,file="./results/Table6.csv", col.names=NA)
+M1 = matrix(unlist(M1.l), nrow = length(taustars), byrow=TRUE, dimnames = list(rnames,cnames))
+M2 = matrix(unlist(M2.l), nrow = length(taustars), byrow=TRUE, dimnames = list(rnames,cnames))
+M3 = matrix(unlist(M3.l), nrow = length(taustars), byrow=TRUE, dimnames = list(rnames,cnames))
+M1
+M2
+M3
+##
+tab1 = rbind(M1[1,1:4]*100, M1[-1,5:8])
+tab2 = rbind(M2[1,1:4]*100, M2[-1,5:8])
+tab3 = rbind(M3[1,1:4]*100, M3[-1,5:8])
+##
+table=round(cbind(tab1, tab2, tab3),1)
+rownames(table) = rnames
+table
+write.csv(table,file="./results/Table6.csv")
+##
 Sys.time()-start
 stopCluster(cl)
