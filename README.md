@@ -20,26 +20,8 @@ this paper.
 You can install the package using the following command:
 
 ``` r
-if (!require("remotes")){install.packages("remotes")}
-remotes::install_github("ottosven/backCUSUM")
-```
-
-### Troubleshooting
-
-Error messages during installation may be due to the fact that the necessary compilers are not installed:
-
-* Windows: Please make sure that Rtools are installed: https://cran.r-project.org/bin/windows/Rtools/.
-
-* Linux (Ubuntu-based):
-
-``` r
-apt-get install libcurl4-openssl-dev libxml2-dev libssl-dev g++ gfortran libblas-dev liblapack-dev liblapack3 libopenblas-base
-```
-
-* Linux (Arch-based):
-
-``` r
-sudo pacman -S gcc-fortran
+library(remotes)
+install_github("ottosven/backCUSUM")
 ```
 
 ## Example
