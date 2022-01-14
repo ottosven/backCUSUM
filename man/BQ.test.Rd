@@ -2,29 +2,32 @@
 % Please edit documentation in R/detectors_retrospective.R
 \name{BQ.test}
 \alias{BQ.test}
-\title{Retrospective backward CUSUM test}
+\title{Backward CUSUM R-test (retrospective)}
 \usage{
-BQ.test(formula, alternative = "two.sided", H = NULL)
+BQ.test(formula, alternative = c("two.sided", "greater", "less"), H = NULL)
 }
 \arguments{
 \item{formula}{Specification of the linear regression model by an object of the class "formula"}
 
 \item{alternative}{A character string specifying the alternative hypothesis; must be one of "two.sided" (default), "greater" or "less".
-The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.}
+The output detector is the maximum norm of \eqn{BQ_t} ("two.sided"), the maximum entry of \eqn{BQ_t} ("greater"), or maximum entry of \eqn{-BQ_t} ("less"), respectively.}
 
-\item{H}{An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
-\eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).}
+\item{H}{An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'BQ_t} is considered instead of \eqn{BQ_t}.
+\eqn{H} must have orthonormal columns. For a test for a break in the intercept, H can also set to the string "intercept".
+The full structural break test is considered as the default setting (NULL).}
 }
 \value{
 A list containing the following components:
-\item{detector}{The vector containing the path of the backward cusum detector}
-\item{boundary}{The vector containing the values of the boundary function}
+\item{detector}{A vector containing the path of the detector statistic depending on the specificaton for the alternative hypothesis}
+\item{boundary}{A vector containing the values of the linear boundary function}
+\item{detector.scaled}{A vector containing the path of the detector divided by the boundary}
+\item{statistic}{The test statistic; maximum of detector.scaled}
+\item{alternative}{The specification for the alternative hypothesis}
 \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
 \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
-\item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 }
 \description{
-Performs the multivariate backward CUSUM test in the retrospective contect using the linear boundary \eqn{d(r) = 1+2r}.
+Performs the multivariate backward CUSUM R-test (retrospective) with linear boundary
 }
 \examples{
 T <- 100

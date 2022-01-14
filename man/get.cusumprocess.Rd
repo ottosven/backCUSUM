@@ -2,20 +2,20 @@
 % Please edit documentation in R/cusumprocess.R
 \name{get.cusumprocess}
 \alias{get.cusumprocess}
-\title{Multivariate CUSUM process}
+\title{Multivariate CUSUM process \eqn{Q_T(r)}}
 \usage{
-get.cusumprocess(formula, T)
+get.cusumprocess(formula, T = NULL)
 }
 \arguments{
 \item{formula}{Specification of the linear regression model by an object of the class "formula"}
 
-\item{T}{In the retropspective context: length of the sample. In the monitoring context: length of the training sample, where monitoring starts at T+1.}
+\item{T}{Optional length of the training sample for monitoring. For retrospective tests, T should be the sample size. If NULL, T is stet to the sample size. NULL is default.}
 }
 \value{
-A matrix containing the multivariate forward CUSUM process Q_T(r)
+A matrix containing the multivariate forward CUSUM process \eqn{Q_T(r)}
 }
 \description{
-Multivariate CUSUM process
+Multivariate CUSUM process \eqn{Q_T(r)}
 }
 \examples{
 T <- 100

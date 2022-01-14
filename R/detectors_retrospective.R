@@ -1,19 +1,22 @@
-#' Retrospective forward CUSUM test
+#' Forward CUSUM R-test (retrospective)
 #'
-#' Performs the multivariate forward CUSUM test in the retrospective contect using the linear boundary of Brown, Durbin, and Evans (1975)
+#' Performs the multivariate forward CUSUM R-test (retrospective) with linear boundary
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
 #' @param alternative A character string specifying the alternative hypothesis; must be one of "two.sided" (default), "greater" or "less".
-#' The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
+#' The output detector is the maximum norm of \eqn{Q_t} ("two.sided"), the maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
-#' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
+#' \eqn{H} must have orthonormal columns. For a test for a break in the intercept, H can also set to the string "intercept".
+#' The full structural break test is considered as the default setting (NULL).
 #'
 #' @return A list containing the following components:
-#' \item{detector}{The vector containing the path of the forward cusum detector from T+1 onwards}
-#' \item{boundary}{The vector containing the values of the boundary function from T+1 onwards}
+#' \item{detector}{A vector containing the path of the detector statistic depending on the specificaton for the alternative hypothesis}
+#' \item{boundary}{A vector containing the values of the linear boundary function}
+#' \item{detector.scaled}{A vector containing the path of the detector divided by the boundary}
+#' \item{statistic}{The test statistic; maximum of detector.scaled}
+#' \item{alternative}{The specification for the alternative hypothesis}
 #' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
 #' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
-#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 #' @export
 #'
 #' @examples
@@ -25,14 +28,15 @@
 #' Q.test(y~1+x+I(x^2), alternative = "greater")
 #' H <- matrix(c(1,0,0), ncol = 1)
 #' Q.test(y~1+x+I(x^2), H = H)
-Q.test <- function(formula, alternative = "two.sided", H = NULL){
+Q.test = function(formula, alternative = c("two.sided", "greater", "less"), H = NULL){
+  alternative=match.arg(alternative)
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
   if (is.null(H)){
     Q <- get.cusumprocess(formula, T)
   } else {
     Q <- get.partialcusum(formula, T, H)
-    k <- dim(H)[2]
+    k <- dim(Q)[1]
   }
   # detector statistic
   if(alternative == "two.sided")( detector <- apply(abs(Q), 2, max) )
@@ -49,28 +53,40 @@ Q.test <- function(formula, alternative = "two.sided", H = NULL){
     crit.val <- get.crit.Q(k, "one.sided")
   }
   rejection <- statistic > crit.val
-  return(list(detector = round(unname(detector),6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
+  output = list(
+    detector = round(unname(detector),6),
+    boundary = round(boundary,6),
+    detector.scaled = round(unname(detector/boundary),6),
+    statistic = round(statistic,6),
+    alternative = alternative,
+    critical.value = crit.val,
+    rejection = rejection
+  )
+  return(output)
 }
 
 
 
 
-#' Retrospective backward CUSUM test
+#' Backward CUSUM R-test (retrospective)
 #'
-#' Performs the multivariate backward CUSUM test in the retrospective contect using the linear boundary \eqn{d(r) = 1+2r}.
+#' Performs the multivariate backward CUSUM R-test (retrospective) with linear boundary
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
 #' @param alternative A character string specifying the alternative hypothesis; must be one of "two.sided" (default), "greater" or "less".
-#' The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
-#' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
-#' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
+#' The output detector is the maximum norm of \eqn{BQ_t} ("two.sided"), the maximum entry of \eqn{BQ_t} ("greater"), or maximum entry of \eqn{-BQ_t} ("less"), respectively.
+#' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'BQ_t} is considered instead of \eqn{BQ_t}.
+#' \eqn{H} must have orthonormal columns. For a test for a break in the intercept, H can also set to the string "intercept".
+#' The full structural break test is considered as the default setting (NULL).
 #'
 #' @return A list containing the following components:
-#' \item{detector}{The vector containing the path of the backward cusum detector}
-#' \item{boundary}{The vector containing the values of the boundary function}
+#' \item{detector}{A vector containing the path of the detector statistic depending on the specificaton for the alternative hypothesis}
+#' \item{boundary}{A vector containing the values of the linear boundary function}
+#' \item{detector.scaled}{A vector containing the path of the detector divided by the boundary}
+#' \item{statistic}{The test statistic; maximum of detector.scaled}
+#' \item{alternative}{The specification for the alternative hypothesis}
 #' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
 #' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
-#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 #' @export
 #'
 #' @examples
@@ -82,14 +98,15 @@ Q.test <- function(formula, alternative = "two.sided", H = NULL){
 #' BQ.test(y~1+x+I(x^2), alternative = "greater")
 #' H <- matrix(c(1,0,0), ncol = 1)
 #' BQ.test(y~1+x+I(x^2), H = H)
-BQ.test <- function(formula, alternative = "two.sided", H = NULL){
+BQ.test <- function(formula, alternative = c("two.sided", "greater", "less"), H = NULL){
+  alternative=match.arg(alternative)
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
   if (is.null(H)){
     Q <- get.cusumprocess(formula, T)
   } else {
     Q <- get.partialcusum(formula, T, H)
-    k <- dim(H)[2]
+    k <- dim(Q)[1]
   }
   BQ <- cbind(Q[,T],matrix(Q[,T] - Q[,1:(T-1)], nrow = k))
   # detector statistic
@@ -107,28 +124,39 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL){
     crit.val <- get.crit.BQ(k, "one.sided")
   }
   rejection <- statistic > crit.val
-  return(list(detector = round(unname(detector),6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
+  output = list(
+    detector = round(unname(detector),6),
+    boundary = round(boundary,6),
+    detector.scaled = round(unname(detector/boundary),6),
+    statistic = round(statistic,6),
+    alternative = alternative,
+    critical.value = crit.val,
+    rejection = rejection
+  )
+  return(output)
 }
 
 
 
-#' Retrospective stacked backward CUSUM test
+#' Stacked backward CUSUM R-test (retrospective)
 #'
-#' Performs the multivariate stacked backward CUSUM test in the retrospective contect using the linear boundary \eqn{d(r) = 1+2r}.
+#' Performs the multivariate stacked backward CUSUM R-test (retrospective) with linear boundary
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
 #' @param alternative A character string specifying the alternative hypothesis; must be one of "two.sided" (default), "greater" or "less".
-#' The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
-#' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
-#' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
+#' The output detector matrix are the maximum norms of \eqn{SBQ_{s,t}} ("two.sided"), the maximum entries of \eqn{SBQ_{s,t}}("greater"), or maximum entries of \eqn{-SBQ_{s,t}} ("less"), respectively.
+#' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'BQ_t} is considered instead of \eqn{SBQ_{s,t}}.
+#' \eqn{H} must have orthonormal columns. For a test for a break in the intercept, H can also set to the string "intercept".
+#' The full structural break test is considered as the default setting (NULL).
 #'
 #' @return A list containing the following components:
-#' \item{detector.scaled}{The vector containing the path of the sequential scaled stacked backward cusum detector from T+1 onwards}
-#' \item{detector.array}{The matrix containing the triangular array of the stacked backward cusum detector}
+#' \item{detector.array}{A matrix containing the triangular array of the stacked backward cusum detector depending on the specificaton for the alternative hypothesis}
 #' \item{boundary}{The matrix containing the values of the triangular boundary surface}
+#' \item{detector.scaled}{A vector containing the path of the sequential stacked backward cusum detector divided by the boundary}
+#' \item{statistic}{The test statistic; maximum of detector.scaled}
+#' \item{alternative}{The specification for the alternative hypothesis}
 #' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
 #' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
-#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 #' @export
 #'
 #' @examples
@@ -140,14 +168,15 @@ BQ.test <- function(formula, alternative = "two.sided", H = NULL){
 #' SBQ.test(y~1+x+I(x^2), alternative = "greater")
 #' H <- matrix(c(1,0,0), ncol = 1)
 #' SBQ.test(y~1+x+I(x^2), H = H)
-SBQ.test <- function(formula, alternative = "two.sided", H = NULL){
+SBQ.test <- function(formula, alternative = c("two.sided", "greater", "less"), H = NULL){
+  alternative=match.arg(alternative)
   T <- dim(model.matrix(formula))[1]
   k <- dim(model.matrix(formula))[2]
   if (is.null(H)){
     Q <- get.cusumprocess(formula, T)
   } else {
     Q <- get.partialcusum(formula, T, H)
-    k <- dim(H)[2]
+    k <- dim(Q)[1]
   }
   SBQ <- array(NA, dim=c(T,T,k), dimnames = list(colnames(Q), colnames(Q), rownames(Q)))
   for(i in 1:k) (SBQ[1,,i] <- Q[i,])
@@ -169,7 +198,16 @@ SBQ.test <- function(formula, alternative = "two.sided", H = NULL){
     crit.val <- get.crit.SBQ(k, "one.sided")
   }
   rejection <- statistic > crit.val
-  return(list(detector.scaled = round(unname(detector.scaled),6), detector.array = round(detector.array,6), boundary = round(boundary,6), critical.value = crit.val, rejection = rejection, statistic = round(statistic,6)))
+  output = list(
+    detector.array = round(detector.array,6),
+    boundary = round(boundary,6),
+    detector.scaled = round(unname(detector.scaled),6),
+    statistic = round(statistic,6),
+    alternative = alternative,
+    critical.value = crit.val,
+    rejection = rejection
+  )
+  return(output)
 }
 
 

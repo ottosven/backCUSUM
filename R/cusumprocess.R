@@ -21,12 +21,12 @@ get.recresid <- function(formula){
 }
 
 
-#' Multivariate CUSUM process
+#' Multivariate CUSUM process \eqn{Q_T(r)}
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
-#' @param T In the retropspective context: length of the sample. In the monitoring context: length of the training sample, where monitoring starts at T+1.
+#' @param T Optional length of the training sample for monitoring. For retrospective tests, T should be the sample size. If NULL, T is stet to the sample size. NULL is default.
 #'
-#' @return A matrix containing the multivariate forward CUSUM process Q_T(r)
+#' @return A matrix containing the multivariate forward CUSUM process \eqn{Q_T(r)}
 #' @export
 #'
 #' @examples
@@ -35,7 +35,8 @@ get.recresid <- function(formula){
 #' x <- rnorm(T,0,1)
 #' y <- c(rep(0,T/2), rep(1,T/2)) + x + u
 #' get.cusumprocess(y~x, T)
-get.cusumprocess <- function(formula, T){
+get.cusumprocess <- function(formula, T=NULL){
+  if(is.null(T)) T = dim(model.frame(formula))[1]
   wt <- get.recresid(formula)
   sig.hat <- sd(wt[1:T])
   X <- model.matrix(formula)
@@ -48,11 +49,12 @@ get.cusumprocess <- function(formula, T){
 
 
 
-#' Partial CUSUM process
+#' Partial CUSUM process \eqn{Q_T^*(r)}
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
-#' @param T In the retropspective context: length of the sample. In the monitoring context: length of the training sample, where monitoring starts at T+1.
-#' @param H A matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}. \eqn{H} must have orthonormal columns.
+#' @param T Optional length of the training sample for monitoring. For retrospective tests, T should be the sample size. If NULL, T is stet to the sample size. NULL is default.
+#' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}. \eqn{H} must have orthonormal columns.
+#' If "intercept", H is set to the setting of testing for a break only in the first regressor variable (typically the intercept). "intercept" is default.
 #'
 #' @return A matrix containing the partial forward CUSUM process \eqn{Q_T^*(r)}
 #' @export
@@ -64,7 +66,9 @@ get.cusumprocess <- function(formula, T){
 #' y <- c(rep(0,T/2), rep(1,T/2)) + x + u
 #' H <- matrix(c(1,0), ncol = 1)
 #' get.partialcusum(y~x, T, H=H)
-get.partialcusum <- function(formula, T, H){
+get.partialcusum <- function(formula, T = NULL, H = "intercept"){
+  if(is.null(T)) T = dim(model.frame(formula))[1]
+  if(H == "intercept") H = matrix(c(1,rep(0,dim(model.frame(formula))[2]-1)), ncol=1)
   wt <- get.recresid(formula)
   sig.hat <- sd(wt[1:T])
   X <- model.matrix(formula)

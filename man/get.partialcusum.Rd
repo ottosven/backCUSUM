@@ -2,22 +2,23 @@
 % Please edit documentation in R/cusumprocess.R
 \name{get.partialcusum}
 \alias{get.partialcusum}
-\title{Partial CUSUM process}
+\title{Partial CUSUM process \eqn{Q_T^*(r)}}
 \usage{
-get.partialcusum(formula, T, H)
+get.partialcusum(formula, T = NULL, H = "intercept")
 }
 \arguments{
 \item{formula}{Specification of the linear regression model by an object of the class "formula"}
 
-\item{T}{In the retropspective context: length of the sample. In the monitoring context: length of the training sample, where monitoring starts at T+1.}
+\item{T}{Optional length of the training sample for monitoring. For retrospective tests, T should be the sample size. If NULL, T is stet to the sample size. NULL is default.}
 
-\item{H}{A matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}. \eqn{H} must have orthonormal columns.}
+\item{H}{An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}. \eqn{H} must have orthonormal columns.
+If "intercept", H is set to the setting of testing for a break only in the first regressor variable (typically the intercept). "intercept" is default.}
 }
 \value{
 A matrix containing the partial forward CUSUM process \eqn{Q_T^*(r)}
 }
 \description{
-Partial CUSUM process
+Partial CUSUM process \eqn{Q_T^*(r)}
 }
 \examples{
 T <- 100
