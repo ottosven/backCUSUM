@@ -32,6 +32,18 @@ snow::clusterSetupRNG(cl)
 MC = 100000
 ## ## ##################################
 simM1 <- function(T, tstar = 1){
+  sup.wald <- function(formula, eps = 0.15){
+    X <- model.matrix(formula)
+    y <- model.frame(formula)[,1]
+    T <- dim(X)[1]
+    RSS0 <- deviance(lm(formula))
+    wald <- function(t){
+      RSS1 <- deviance(lm(y[1:t] ~ X[1:t,]))
+      RSS2 <- deviance(lm(y[(t+1):T] ~ X[(t+1):T,]))
+      return(T*(RSS0 - (RSS1 + RSS2))/(RSS1 + RSS2))
+    }
+    return(max(sapply(floor(eps*T):(T-floor(eps*T)), wald)))
+  }
   e = rnorm(T,0,1)
   y = c(rep(0,floor(tstar*T)),rep(0.8,floor((1-tstar)*T))) + e
   model <- y ~ 1
@@ -39,11 +51,23 @@ simM1 <- function(T, tstar = 1){
     backCUSUM::BQ.test(model)$statistic,
     backCUSUM::SBQ.test(model)$statistic,
     backCUSUM::Q.test(model)$statistic,
-    backCUSUM::sup.wald(model)
+    sup.wald(model)
   ))
 }
 ##
 simM2 <- function(T, tstar = 1){
+  sup.wald <- function(formula, eps = 0.15){
+    X <- model.matrix(formula)
+    y <- model.frame(formula)[,1]
+    T <- dim(X)[1]
+    RSS0 <- deviance(lm(formula))
+    wald <- function(t){
+      RSS1 <- deviance(lm(y[1:t] ~ X[1:t,]))
+      RSS2 <- deviance(lm(y[(t+1):T] ~ X[(t+1):T,]))
+      return(T*(RSS0 - (RSS1 + RSS2))/(RSS1 + RSS2))
+    }
+    return(max(sapply(floor(eps*T):(T-floor(eps*T)), wald)))
+  }
   e = rnorm(T,0,1)
   x=filter(rnorm(T,0,1),0.5,"recursive")
   y=1 + x*c(rep(0,floor(tstar*T)),rep(0.8,floor((1-tstar)*T)))+e
@@ -52,11 +76,23 @@ simM2 <- function(T, tstar = 1){
     backCUSUM::BQ.test(model)$statistic,
     backCUSUM::SBQ.test(model)$statistic,
     backCUSUM::Q.test(model)$statistic,
-    backCUSUM::sup.wald(model)
+    sup.wald(model)
   ))
 }
 ##
 simM3 <- function(T, tstar = 1){
+  sup.wald <- function(formula, eps = 0.15){
+    X <- model.matrix(formula)
+    y <- model.frame(formula)[,1]
+    T <- dim(X)[1]
+    RSS0 <- deviance(lm(formula))
+    wald <- function(t){
+      RSS1 <- deviance(lm(y[1:t] ~ X[1:t,]))
+      RSS2 <- deviance(lm(y[(t+1):T] ~ X[(t+1):T,]))
+      return(T*(RSS0 - (RSS1 + RSS2))/(RSS1 + RSS2))
+    }
+    return(max(sapply(floor(eps*T):(T-floor(eps*T)), wald)))
+  }
   e = rnorm(T,0,1)
   emu = e + c(rep(0,floor(tstar*T)),rep(0.8,floor((1-tstar)*T)))
   y=filter(emu,0.5,"recursive")
@@ -66,7 +102,7 @@ simM3 <- function(T, tstar = 1){
     backCUSUM::BQ.test(model1,H=H)$statistic,
     backCUSUM::SBQ.test(model1,H=H)$statistic,
     backCUSUM::Q.test(model1,H=H)$statistic,
-    backCUSUM::sup.wald(model1)
+    sup.wald(model1)
   ))
 }
 ##
