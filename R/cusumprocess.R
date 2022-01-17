@@ -95,9 +95,9 @@ get.partialcusum <- function(formula, T = NULL, H = "intercept"){
 #' @export
 #'
 #' @examples
-#' get.crit.Q.mon(1,Inf)
-#' get.crit.Q.mon(3,0.5)
-get.crit.Q.mon <- function(k, m = Inf, alternative = "two.sided"){
+#' crit.Q.Mtest(1,Inf)
+#' crit.Q.Mtest(3,0.5)
+crit.Q.Mtest <- function(k, m = Inf, alternative = "two.sided"){
   if(alternative == "one.sided"){
     index <- c(1,2,4,6)
   } else {
@@ -128,9 +128,9 @@ get.crit.Q.mon <- function(k, m = Inf, alternative = "two.sided"){
 #' @export
 #'
 #' @examples
-#' get.crit.Q(1)
-get.crit.Q <- function(k, alternative = "two.sided"){
-  return(get.crit.Q.mon(k, m=2,alternative)[[1]])
+#' crit.Q.Rtest(1)
+crit.Q.Rtest <- function(k, alternative = "two.sided"){
+  return(crit.Q.Mtest(k, m=2,alternative)[[1]])
 }
 
 
@@ -146,9 +146,9 @@ get.crit.Q <- function(k, alternative = "two.sided"){
 #' @export
 #'
 #' @examples
-#' get.crit.BQ(1)
-get.crit.BQ <- function(k, alternative = "two.sided"){
-  return(get.crit.Q.mon(k, m=2, alternative)[[1]])
+#' crit.BQ(1)
+crit.BQ <- function(k, alternative = "two.sided"){
+  return(crit.Q.Rtest(k, alternative)[[1]])
 }
 
 
@@ -167,9 +167,9 @@ get.crit.BQ <- function(k, alternative = "two.sided"){
 #' @export
 #'
 #' @examples
-#' get.crit.SBQ.mon(1,Inf)
-#' get.crit.SBQ.mon(3,0.5)
-get.crit.SBQ.mon <- function(k, m = Inf, alternative = "two.sided"){
+#' crit.SBQ.Mtest(1,Inf)
+#' crit.SBQ.Mtest(3,0.5)
+crit.SBQ.Mtest <- function(k, m = Inf, alternative = "two.sided"){
   if(alternative == "one.sided"){
     index <- c(1,2,4,6)
   } else {
@@ -200,7 +200,7 @@ get.crit.SBQ.mon <- function(k, m = Inf, alternative = "two.sided"){
 #' @export
 #'
 #' @examples
-#' get.crit.SBQ(1)
-get.crit.SBQ <- function(k, alternative = "two.sided"){
-  return(get.crit.SBQ.mon(k, m=2, alternative)[[1]])
+#' crit.SBQ.Rtest(1)
+crit.SBQ.Rtest <- function(k, alternative = "two.sided"){
+  return(crit.SBQ.Mtest(k, m=2, alternative)[[1]])
 }

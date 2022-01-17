@@ -48,9 +48,9 @@ Q.test = function(formula, alternative = c("two.sided", "greater", "less"), H = 
   statistic <- max(detector/boundary)
   # critical values and test decision
   if(alternative == "two.sided"){
-    crit.val <- get.crit.Q(k)
+    crit.val <- crit.Q.Rtest(k)
   } else {
-    crit.val <- get.crit.Q(k, "one.sided")
+    crit.val <- crit.Q.Rtest(k, "one.sided")
   }
   rejection <- statistic > crit.val
   output = list(
@@ -119,9 +119,9 @@ BQ.test <- function(formula, alternative = c("two.sided", "greater", "less"), H 
   statistic <- max(detector/boundary)
   # critical values and test decision
   if(alternative == "two.sided"){
-    crit.val <- get.crit.BQ(k)
+    crit.val <- crit.BQ(k)
   } else {
-    crit.val <- get.crit.BQ(k, "one.sided")
+    crit.val <- crit.BQ(k, "one.sided")
   }
   rejection <- statistic > crit.val
   output = list(
@@ -193,9 +193,9 @@ SBQ.test <- function(formula, alternative = c("two.sided", "greater", "less"), H
   statistic <- max(detector.scaled)
   # critical values and test decision
   if(alternative == "two.sided"){
-    crit.val <- get.crit.SBQ(k)
+    crit.val <- crit.SBQ.Rtest(k)
   } else {
-    crit.val <- get.crit.SBQ(k, "one.sided")
+    crit.val <- crit.SBQ.Rtest(k, "one.sided")
   }
   rejection <- statistic > crit.val
   output = list(

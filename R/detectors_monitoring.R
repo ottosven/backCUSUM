@@ -54,9 +54,9 @@ SBQ.mon <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
   statistic <- max(detector.scaled)
   # critical values and test decision
   if(alternative == "two.sided"){
-    crit.val <- get.crit.SBQ.mon(k,m)$crit
+    crit.val <- crit.SBQ.Mtest(k,m)$crit
   } else {
-    crit.val <- get.crit.SBQ.mon(k, m, "one.sided")$crit
+    crit.val <- crit.SBQ.Mtest(k, m, "one.sided")$crit
   }
   rejection <- statistic > crit.val
   # detection time point
@@ -126,9 +126,9 @@ Q.mon.lin <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
   statistic <- max(detector/boundary)
   # critical values and test decision
   if(alternative == "two.sided"){
-    crit.val <- get.crit.Q.mon(k, m)$crit
+    crit.val <- crit.Q.Mtest(k, m)$crit
   } else {
-    crit.val <- get.crit.Q.mon(k, m, "one.sided")$crit
+    crit.val <- crit.Q.Mtest(k, m, "one.sided")$crit
   }
   rejection <- statistic > crit.val
   # detection time point
