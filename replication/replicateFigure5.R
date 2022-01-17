@@ -32,13 +32,36 @@ trainingstart1 = "2020-04-10"
 trainingstart2 = "2020-07-20"
 traininglength = 42 #6 weeks
 ##########
+## CSW monitoring
+csw <- function(formula, T, alpha = 0.05, alternative = "two.sided"){
+  n <- dim(model.matrix(formula))[1] #current time point
+  k <- dim(model.matrix(formula))[2]
+  H <- matrix(c(1,numeric(k-1)), ncol = 1)
+  detector <- backCUSUM::Q.mon(formula, T, alternative = alternative, H = H)$detector
+  # boundary function
+  r <- (1:n)/T
+  if(alternative == "two.sided"){
+    boundary.CSW <- sqrt(r[(T+1):n]*(log(r[(T+1):n]/alpha^2)))
+  } else {
+    boundary.CSW <- sqrt(r[(T+1):n]*(log(r[(T+1):n]/(2*alpha)^2)))
+  }
+  CSW <- detector/boundary.CSW
+  # maximum statistic
+  statistic <- max(CSW)
+  # critical values and test decision
+  rejection <- statistic > 1
+  # detection time point
+  detectiontime <- unname(T + which(CSW > 1)[1])
+  return(list(detector = round(unname(detector),6), boundary = round(boundary.CSW,6), rejection = rejection, detectiontime = detectiontime, statistic = round(statistic,6)))
+}
+##########
 ## FIRST MONITORING PERIOD: DYNAMIC
 ##########
 lagdata1 = window(lagdata, start = trainingstart1, end = "2020-12-31")
 model=lagdata1[,1]~lagdata1[,3]+lagdata1[,8]
 H <- matrix(c(1,0,0), ncol = 1)
 recres <- xts(get.recresid(model), order.by = time(lagdata1))
-QChu <- Q.mon.csw(model, T=traininglength, alternative = "greater", alpha = 0.05)
+QChu <- csw(model, T=traininglength, alternative = "greater", alpha = 0.05)
 Q.detector <- QChu$detector/QChu$boundary
 Q.scaled = xts(Q.detector, order.by = time(lagdata1)[-(1:traininglength)])
 Q.detection = which(Q.detector > 1)[1] + traininglength
@@ -76,7 +99,7 @@ lagdata1 = window(lagdata, start = trainingstart2, end = "2020-12-31")
 model=lagdata1[,1]~lagdata1[,3]+lagdata1[,8]
 H <- matrix(c(1,0,0), ncol = 1)
 recres <- xts(get.recresid(model), order.by = time(lagdata1))
-QChu <- Q.mon.csw(model, T=traininglength, alternative = "greater", alpha = 0.05)
+QChu <- csw(model, T=traininglength, alternative = "greater", alpha = 0.05)
 Q.detector <- QChu$detector/QChu$boundary
 Q.scaled = xts(Q.detector, order.by = time(lagdata1)[-(1:traininglength)])
 Q.detection = which(Q.detector > 1)[1] + traininglength
@@ -114,7 +137,7 @@ modeldata2 = list(
 lagdata1 = window(lagdata, start = trainingstart1, end = "2020-12-31")
 model = lagdata1[,1] ~ 1
 recres <- xts(get.recresid(model), order.by = time(lagdata1))
-QChu <- Q.mon.csw(model, T=traininglength, alternative = "greater", alpha = 0.05)
+QChu <- csw(model, T=traininglength, alternative = "greater", alpha = 0.05)
 rec = recres[1:traininglength]
 omegasigma = c(sqrt(getLongRunVar(rec)$Omega)/sd(rec))
 Q.detector <- QChu$detector/QChu$boundary/omegasigma
@@ -153,7 +176,7 @@ modeldata3 = list(
 lagdata1 = window(lagdata, start = trainingstart2, end = "2020-12-31")
 model = lagdata1[,1] ~ 1
 recres <- xts(get.recresid(model), order.by = time(lagdata1))
-QChu <- Q.mon.csw(model, T=traininglength, alternative = "greater", alpha = 0.05)
+QChu <- csw(model, T=traininglength, alternative = "greater", alpha = 0.05)
 rec = recres[1:traininglength]
 library(cointReg)
 omegasigma = c(sqrt(getLongRunVar(rec)$Omega)/sd(rec))

@@ -29,7 +29,7 @@ snow::clusterSetupRNG(cl)
 ## ##################################
 ## Simulation setting
 ## ##################################
-MC = 10
+MC = 100000
 ###############################
 simM1 <- function(T, m=10, tstar=m){
   mT <- floor(m*T)
