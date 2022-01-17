@@ -46,6 +46,29 @@ simM1 <- function(T, m=10, tstar=m){
     detector = apply(pageQ[-(1:T),-(1:T)],2,max,na.rm=TRUE)
     detector/sd(trainingfit$residuals)
   }
+  ##
+  csw <- function(formula, T, alpha = 0.05, alternative = "two.sided"){
+    n <- dim(model.matrix(formula))[1] #current time point
+    k <- dim(model.matrix(formula))[2]
+    H <- matrix(c(1,numeric(k-1)), ncol = 1)
+    detector <- backCUSUM::Q.mon.lin(formula, T, alternative = alternative, H = H)$detector
+    # boundary function
+    r <- (1:n)/T
+    if(alternative == "two.sided"){
+      boundary.CSW <- sqrt(r[(T+1):n]*(log(r[(T+1):n]/alpha^2)))
+    } else {
+      boundary.CSW <- sqrt(r[(T+1):n]*(log(r[(T+1):n]/(2*alpha)^2)))
+    }
+    CSW <- detector/boundary.CSW
+    # maximum statistic
+    statistic <- max(CSW)
+    # critical values and test decision
+    rejection <- statistic > 1
+    # detection time point
+    detectiontime <- unname(T + which(CSW > 1)[1])
+    return(list(detector = round(unname(detector),6), boundary = round(boundary.CSW,6), rejection = rejection, detectiontime = detectiontime, statistic = round(statistic,6)))
+  }
+  ##
   sbq.detector <- function(model, T){
     boundary = matrix(NA, ncol = mT, nrow = mT)
     for(j in (T+1):mT){
@@ -70,7 +93,7 @@ simM1 <- function(T, m=10, tstar=m){
   r <- (1:mT)/T
   boundary.lin <- 1+2*(r-1)[(T+1):mT]
   Q <- Q.det/boundary.lin
-  CSW.out = backCUSUM::Q.mon.csw(model,T)
+  CSW.out = csw(model,T)
   CSW=CSW.out$detector/CSW.out$boundary
   fremdt = fremdt.detector(model, T)
   k.fr = 1:(length(y)-T)
@@ -99,6 +122,29 @@ simM2 <- function(T, m=10, tstar=m){
     detector = apply(pageQ[-(1:T),-(1:T)],2,max,na.rm=TRUE)
     detector/sd(trainingfit$residuals)
   }
+  ##
+  csw <- function(formula, T, alpha = 0.05, alternative = "two.sided"){
+    n <- dim(model.matrix(formula))[1] #current time point
+    k <- dim(model.matrix(formula))[2]
+    H <- matrix(c(1,numeric(k-1)), ncol = 1)
+    detector <- backCUSUM::Q.mon.lin(formula, T, alternative = alternative, H = H)$detector
+    # boundary function
+    r <- (1:n)/T
+    if(alternative == "two.sided"){
+      boundary.CSW <- sqrt(r[(T+1):n]*(log(r[(T+1):n]/alpha^2)))
+    } else {
+      boundary.CSW <- sqrt(r[(T+1):n]*(log(r[(T+1):n]/(2*alpha)^2)))
+    }
+    CSW <- detector/boundary.CSW
+    # maximum statistic
+    statistic <- max(CSW)
+    # critical values and test decision
+    rejection <- statistic > 1
+    # detection time point
+    detectiontime <- unname(T + which(CSW > 1)[1])
+    return(list(detector = round(unname(detector),6), boundary = round(boundary.CSW,6), rejection = rejection, detectiontime = detectiontime, statistic = round(statistic,6)))
+  }
+  ##
   sbq.detector <- function(model, T){
     boundary = matrix(NA, ncol = mT, nrow = mT)
     for(j in (T+1):mT){
@@ -124,7 +170,7 @@ simM2 <- function(T, m=10, tstar=m){
   r <- (1:mT)/T
   boundary.lin <- 1+2*(r-1)[(T+1):mT]
   Q <- Q.det/boundary.lin
-  CSW.out = backCUSUM::Q.mon.csw(model,T)
+  CSW.out = csw(model,T)
   CSW=CSW.out$detector/CSW.out$boundary
   fremdt = fremdt.detector(model, T)
   k.fr = 1:(length(y)-T)
@@ -153,6 +199,29 @@ simM3 <- function(T, m=10, tstar=m){
     detector = apply(pageQ[-(1:T),-(1:T)],2,max,na.rm=TRUE)
     detector/sd(trainingfit$residuals)
   }
+  ##
+  csw <- function(formula, T, alpha = 0.05, alternative = "two.sided"){
+    n <- dim(model.matrix(formula))[1] #current time point
+    k <- dim(model.matrix(formula))[2]
+    H <- matrix(c(1,numeric(k-1)), ncol = 1)
+    detector <- backCUSUM::Q.mon.lin(formula, T, alternative = alternative, H = H)$detector
+    # boundary function
+    r <- (1:n)/T
+    if(alternative == "two.sided"){
+      boundary.CSW <- sqrt(r[(T+1):n]*(log(r[(T+1):n]/alpha^2)))
+    } else {
+      boundary.CSW <- sqrt(r[(T+1):n]*(log(r[(T+1):n]/(2*alpha)^2)))
+    }
+    CSW <- detector/boundary.CSW
+    # maximum statistic
+    statistic <- max(CSW)
+    # critical values and test decision
+    rejection <- statistic > 1
+    # detection time point
+    detectiontime <- unname(T + which(CSW > 1)[1])
+    return(list(detector = round(unname(detector),6), boundary = round(boundary.CSW,6), rejection = rejection, detectiontime = detectiontime, statistic = round(statistic,6)))
+  }
+  ##
   sbq.detector <- function(model, T){
     boundary = matrix(NA, ncol = mT-1, nrow = mT-1)
     for(j in (T+1):(mT-1)){
@@ -180,7 +249,7 @@ simM3 <- function(T, m=10, tstar=m){
   r <- (1:(mT-1))/T
   boundary.lin <- 1+2*(r-1)[(T+1):(mT-1)]
   Q <- Q.det/boundary.lin
-  CSW.out = backCUSUM::Q.mon.csw(model,T)
+  CSW.out = csw(model,T)
   CSW=CSW.out$detector/CSW.out$boundary
   fremdt = fremdt.detector(model, T)
   k.fr = 1:(length(y)-1-T)
