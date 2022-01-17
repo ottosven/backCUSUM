@@ -29,7 +29,7 @@ snow::clusterSetupRNG(cl)
 ## ##################################
 ## Simulation setting
 ## ##################################
-MC = 100000
+MC = 10
 ###############################
 simM1 <- function(T, m=10, tstar=m){
   mT <- floor(m*T)
@@ -51,7 +51,7 @@ simM1 <- function(T, m=10, tstar=m){
     n <- dim(model.matrix(formula))[1] #current time point
     k <- dim(model.matrix(formula))[2]
     H <- matrix(c(1,numeric(k-1)), ncol = 1)
-    detector <- backCUSUM::Q.mon.lin(formula, T, alternative = alternative, H = H)$detector
+    detector <- backCUSUM::Q.mon(formula, T, alternative = alternative, H = H)$detector
     # boundary function
     r <- (1:n)/T
     if(alternative == "two.sided"){
@@ -89,7 +89,7 @@ simM1 <- function(T, m=10, tstar=m){
   model <- y ~ 1
   ##
   SBQ = sbq.detector(model, T)
-  Q.det <- backCUSUM::Q.mon.lin(model, T)$detector
+  Q.det <- backCUSUM::Q.mon(model, T)$detector
   r <- (1:mT)/T
   boundary.lin <- 1+2*(r-1)[(T+1):mT]
   Q <- Q.det/boundary.lin
@@ -127,7 +127,7 @@ simM2 <- function(T, m=10, tstar=m){
     n <- dim(model.matrix(formula))[1] #current time point
     k <- dim(model.matrix(formula))[2]
     H <- matrix(c(1,numeric(k-1)), ncol = 1)
-    detector <- backCUSUM::Q.mon.lin(formula, T, alternative = alternative, H = H)$detector
+    detector <- backCUSUM::Q.mon(formula, T, alternative = alternative, H = H)$detector
     # boundary function
     r <- (1:n)/T
     if(alternative == "two.sided"){
@@ -166,7 +166,7 @@ simM2 <- function(T, m=10, tstar=m){
   model <- y ~ 1 + x
   ##
   SBQ = sbq.detector(model, T)
-  Q.det <- backCUSUM::Q.mon.lin(model, T)$detector
+  Q.det <- backCUSUM::Q.mon(model, T)$detector
   r <- (1:mT)/T
   boundary.lin <- 1+2*(r-1)[(T+1):mT]
   Q <- Q.det/boundary.lin
@@ -204,7 +204,7 @@ simM3 <- function(T, m=10, tstar=m){
     n <- dim(model.matrix(formula))[1] #current time point
     k <- dim(model.matrix(formula))[2]
     H <- matrix(c(1,numeric(k-1)), ncol = 1)
-    detector <- backCUSUM::Q.mon.lin(formula, T, alternative = alternative, H = H)$detector
+    detector <- backCUSUM::Q.mon(formula, T, alternative = alternative, H = H)$detector
     # boundary function
     r <- (1:n)/T
     if(alternative == "two.sided"){
@@ -245,7 +245,7 @@ simM3 <- function(T, m=10, tstar=m){
   H = matrix(c(1,0), ncol = 1)
   ##
   SBQ = sbq.detector(model, T)
-  Q.det <- backCUSUM::Q.mon.lin(model, T, H=H)$detector
+  Q.det <- backCUSUM::Q.mon(model, T, H=H)$detector
   r <- (1:(mT-1))/T
   boundary.lin <- 1+2*(r-1)[(T+1):(mT-1)]
   Q <- Q.det/boundary.lin

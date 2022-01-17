@@ -102,11 +102,11 @@ SBQ.mon <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
 #' u <- rnorm(t,0,1)
 #' x <- rnorm(t,1,2)
 #' y <- c(rep(0,480), rep(5,20)) + x + I(x^2) + u
-#' Q.mon.lin(y~1+x+I(x^2), T)
-#' Q.mon.lin(y~1+x+I(x^2), T, alternative = "greater")
+#' Q.mon(y~1+x+I(x^2), T)
+#' Q.mon(y~1+x+I(x^2), T, alternative = "greater")
 #' H <- matrix(c(1,0,0), ncol = 1)
-#' Q.mon.lin(y~1+x+I(x^2), T, m=6, H = H)
-Q.mon.lin <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
+#' Q.mon(y~1+x+I(x^2), T, m=6, H = H)
+Q.mon <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
   n <- dim(model.matrix(formula))[1] #current time point
   k <- dim(model.matrix(formula))[2]
   if (is.null(H)){
