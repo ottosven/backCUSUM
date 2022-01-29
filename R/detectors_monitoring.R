@@ -4,20 +4,22 @@
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
 #' @param T Length of the training sample. Monitoring starts at T+1.
-#' @param m The length of the relative monitoring period; default is m = Inf (infinite horizon monitoring).
+#' @param m The length of the relative monitoring period m > 1; default is m = 10. Horizons larger than m=10 are not implemented.
 #' @param alternative A character string specifying the alternative hypothesis; must be one of "two.sided" (default), "greater" or "less".
-#' The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
+#' The output detector is the maximum norm of \eqn{Q_t} ("two.sided"), the maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
 #' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
-#' \eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).
+#' \eqn{H} must have orthonormal columns. For a test for a break in the intercept, H can also set to the string "intercept".
+#' The full structural break test is considered as the default setting (NULL).
 #'
 #' @return A list containing the following components:
-#' \item{detector.scaled}{The vector containing the path of the sequential scaled stacked backward cusum detector from T+1 onwards}
-#' \item{detector.array}{The matrix containing the triangular array of the stacked backward cusum detector}
-#' \item{boundary}{The matrix containing the values of the triangular boundary surface}
+#' \item{detector.scaled}{A vector containing the path of the detector statistic scaled by the boundary function from T+1 onwards depending on the specificaton for the alternative hypothesis}
+#' \item{detector.array}{A matrix containing the triangular array of the stacked backward cusum detector from T+1 onwards}
+#' \item{boundary}{A matrix containing the values of the triangular boundary surface from T+1 onwards}
+#' \item{statistic}{The test statistic; maximum of detector.scaled}
+#' \item{detectontime}{The vector containing the detection time points for different significance levels, which are the time indices of the first boundary crossing; NA if the null hypothesis is not rejected}
+#' \item{alternative}{The specification for the alternative hypothesis}
 #' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
 #' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
-#' \item{detectontime}{The vector containing the detection time points for different significance levels, which are the time indices of the first boundary crossing; NA if the null hypothesis is not rejected}
-#' \item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 #' @export
 #'
 #' @examples
@@ -30,14 +32,17 @@
 #' SBQ.mon(y~1+x+I(x^2), T, alternative = "greater")
 #' H <- matrix(c(1,0,0), ncol = 1)
 #' SBQ.mon(y~1+x+I(x^2), T, m=6, H = H)
-SBQ.mon <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
-  n <- dim(model.matrix(formula))[1]  #current time point
+SBQ.mon <- function(formula, T, m=10, alternative = c("two.sided", "greater", "less"), H = NULL){
+  alternative=match.arg(alternative)
+  if(m>10) stop("Critical values for m>10 are not implemented. Please specify a smaller monitoring horizon or use Q.mon.inf")
+  n <- dim(model.matrix(formula))[1] #current time point
+  if(n>m*T) stop(paste0("The maximum number of monitoring times has been reached. M=",m*T,", t=",n))
   k <- dim(model.matrix(formula))[2]
   if (is.null(H)){
     Q <- get.cusumprocess(formula, T)
   } else {
     Q <- get.partialcusum(formula, T, H)
-    k <- dim(H)[2]
+    k <- dim(Q)[1]
   }
   SBQ <- array(NA, dim=c(n,n,k), dimnames = list(colnames(Q), colnames(Q), rownames(Q)))
   for (i in 1:k) (SBQ[T+1,(T+1):n, i] <- Q[i,(T+1):n] - Q[i,T])
@@ -63,15 +68,17 @@ SBQ.mon <- function(formula, T, m=Inf, alternative = "two.sided", H = NULL){
   detection <- function(crit) ( T + which(detector.scaled > crit)[1] )
   detectiontime <- apply(matrix(crit.val), 1, detection)
   names(detectiontime) <- names(rejection)
-  return(list(
+  output = list(
     detector.scaled = round(unname(detector.scaled),6),
     detector.array = round(detector.array[-(1:T),-(1:T)],6),
     boundary = round(boundary[-(1:T),-(1:T)],6),
-    critical.value = crit.val,
-    rejection = rejection,
+    statistic = round(statistic,6),
     detectiontime = detectiontime,
-    statistic = round(statistic,6)
-  ))
+    alternative = alternative,
+    critical.value = crit.val,
+    rejection = rejection
+  )
+  return(output)
 }
 
 

@@ -4,30 +4,38 @@
 \alias{SBQ.mon}
 \title{Stacked backward CUSUM monitoring}
 \usage{
-SBQ.mon(formula, T, m = Inf, alternative = "two.sided", H = NULL)
+SBQ.mon(
+  formula,
+  T,
+  m = 10,
+  alternative = c("two.sided", "greater", "less"),
+  H = NULL
+)
 }
 \arguments{
 \item{formula}{Specification of the linear regression model by an object of the class "formula"}
 
 \item{T}{Length of the training sample. Monitoring starts at T+1.}
 
-\item{m}{The length of the relative monitoring period; default is m = Inf (infinite horizon monitoring).}
+\item{m}{The length of the relative monitoring period m > 1; default is m = 10. Horizons larger than m=10 are not implemented.}
 
 \item{alternative}{A character string specifying the alternative hypothesis; must be one of "two.sided" (default), "greater" or "less".
-The detector statistic is given by the maximum norm of \eqn{Q_t} ("two.sided"), maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.}
+The output detector is the maximum norm of \eqn{Q_t} ("two.sided"), the maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.}
 
 \item{H}{An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
-\eqn{H} must have orthonormal columns. The full structural break test is considered as the default setting (NULL).}
+\eqn{H} must have orthonormal columns. For a test for a break in the intercept, H can also set to the string "intercept".
+The full structural break test is considered as the default setting (NULL).}
 }
 \value{
 A list containing the following components:
-\item{detector.scaled}{The vector containing the path of the sequential scaled stacked backward cusum detector from T+1 onwards}
-\item{detector.array}{The matrix containing the triangular array of the stacked backward cusum detector}
-\item{boundary}{The matrix containing the values of the triangular boundary surface}
+\item{detector.scaled}{A vector containing the path of the detector statistic scaled by the boundary function from T+1 onwards depending on the specificaton for the alternative hypothesis}
+\item{detector.array}{A matrix containing the triangular array of the stacked backward cusum detector from T+1 onwards}
+\item{boundary}{A matrix containing the values of the triangular boundary surface from T+1 onwards}
+\item{statistic}{The test statistic; maximum of detector.scaled}
+\item{detectontime}{The vector containing the detection time points for different significance levels, which are the time indices of the first boundary crossing; NA if the null hypothesis is not rejected}
+\item{alternative}{The specification for the alternative hypothesis}
 \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
 \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
-\item{detectontime}{The vector containing the detection time points for different significance levels, which are the time indices of the first boundary crossing; NA if the null hypothesis is not rejected}
-\item{statistic}{The test statistic; maximum of the detector scaled by its boundary \eqn{d(r)}}
 }
 \description{
 Performs the multivariate stacked backward CUSUM monitoring procedure using the linear boundary of Brown, Durbin, and Evans (1975)
