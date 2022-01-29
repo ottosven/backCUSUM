@@ -38,10 +38,7 @@ simM1 <- function(T, m=10, tstar = m){
   y = c(rep(0,floor(tstar*T)),rep(0.8,floor((m-tstar)*T))) + e
   model <- y ~ 1
   SBQ = backCUSUM::SBQ.mon(model, T, m=m)$detector.scaled
-  Q.det <- backCUSUM::Q.mon(model, T, m=m)$detector
-  r <- (1:mT)/T
-  boundary.lin <- 1+2*(r-1)[(T+1):mT]
-  Q <- Q.det/boundary.lin
+  Q <- backCUSUM::Q.mon(model, T, m=m)$detector.scaled
   return(
     c(
       which(SBQ > 1.202)[1] + T,
@@ -57,10 +54,7 @@ simM2 <- function(T, m=10, tstar = m){
   y=1 + x*c(rep(0,floor(tstar*T)),rep(0.8,floor((m-tstar)*T)))+e
   model <- y ~ 1 + x
   SBQ = backCUSUM::SBQ.mon(model, T, m=m)$detector.scaled
-  Q.det <- backCUSUM::Q.mon(model, T, m=m)$detector
-  r <- (1:mT)/T
-  boundary.lin <- 1+2*(r-1)[(T+1):mT]
-  Q <- Q.det/boundary.lin
+  Q <- backCUSUM::Q.mon(model, T, m=m)$detector.scaled
   return(
     c(
       which(SBQ > 1.274)[1] + T,
@@ -77,10 +71,7 @@ simM3 <- function(T, m=10, tstar = m){
   model = y[2:mT] ~ 1 + y[1:(mT-1)]
   H = matrix(c(1,0), ncol = 1)
   SBQ = backCUSUM::SBQ.mon(model, T, m=m, H=H)$detector.scaled
-  Q.det <- backCUSUM::Q.mon(model, T, m=m, H=H)$detector
-  r <- (1:(mT-1))/T
-  boundary.lin <- 1+2*(r-1)[(T+1):(mT-1)]
-  Q <- Q.det/boundary.lin
+  Q <- backCUSUM::Q.mon(model, T, m=m, H=H)$detector.scaled
   return(
     c(
       which(SBQ > 1.202)[1] + T,
