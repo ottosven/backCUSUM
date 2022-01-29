@@ -25,7 +25,7 @@ breakpoint.est <- function(formula, type = c("BQ", "ML"), H = NULL){
       Q <- get.cusumprocess(formula, T)
     } else {
       Q <- get.partialcusum(formula, T, H)
-      k <- dim(H)[2]
+      k <- dim(Q)[1]
     }
     BQ <- cbind(Q[,T],matrix(Q[,T] - Q[,1:(T-1)], nrow = k))
     break.est <- which.max(BQ/sqrt(T-(1:T)+1))
