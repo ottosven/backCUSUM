@@ -4,14 +4,16 @@
 \alias{breakpoint.est}
 \title{Breakpoint estimation}
 \usage{
-breakpoint.est(formula, type = "BQ", H = NULL)
+breakpoint.est(formula, type = c("BQ", "ML"), H = NULL)
 }
 \arguments{
 \item{formula}{Specification of the linear regression model by an object of the class "formula"}
 
-\item{type}{A character string specifying the breakpoint estimator type; must be one of "BQ" (backward CUSUM estimator, default) or "ML" (maximum likelihood estimator, see Bai (1997).}
+\item{type}{A character string specifying the breakpoint estimator type; must be one of "BQ" (backward CUSUM estimator, default) or "ML" (maximum likelihood estimator).}
 
-\item{H}{An optional matrix for the partial breaks. \eqn{H} must have orthonormal columns. The full structural break model is considered as the default setting (NULL).}
+\item{H}{An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
+\eqn{H} must have orthonormal columns. For a test for a break in the intercept, H can also set to the string "intercept".
+The full structural break test is considered as the default setting (NULL).}
 }
 \value{
 The estimated location of the breakpoint
