@@ -68,7 +68,7 @@ get.cusumprocess <- function(formula, T=NULL){
 #' get.partialcusum(y~x, T, H=H)
 get.partialcusum <- function(formula, T = NULL, H = "intercept"){
   if(is.null(T)) T = dim(model.frame(formula))[1]
-  if(H == "intercept") H = matrix(c(1,rep(0,dim(model.frame(formula))[2]-1)), ncol=1)
+  if(any(H == "intercept")) H = matrix(c(1,rep(0,dim(model.frame(formula))[2]-1)), ncol=1)
   wt <- get.recresid(formula)
   sig.hat <- sd(wt[1:T])
   X <- model.matrix(formula)
