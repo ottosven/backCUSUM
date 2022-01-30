@@ -69,26 +69,11 @@ simM1 <- function(T, m=10, tstar=m){
     return(list(detector = round(unname(detector),6), boundary = round(boundary.CSW,6), rejection = rejection, detectiontime = detectiontime, statistic = round(statistic,6)))
   }
   ##
-  sbq.detector <- function(model, T){
-    boundary = matrix(NA, ncol = mT, nrow = mT)
-    for(j in (T+1):mT){
-      r=j/T
-      S=(T:(j-1))/T
-      boundary[(T+1):j,j] = (1+2*(r-S))*sqrt(r)
-    }
-    Q <- backCUSUM::get.cusumprocess(model, T)
-    SBQ = matrix(NA, nrow = mT, ncol = mT)
-    for(t in (T+1):mT) (SBQ[(T+1):t,t] <- abs(Q[t] - Q[T:(t-1)]))
-    detector.array = SBQ/boundary
-    SBQ = apply(detector.array[-(1:T),-(1:T)],2,max,na.rm=TRUE)
-    return(SBQ)
-  }
-  ##
   e = rnorm(mT,0,1)
   y = c(rep(0,floor(tstar*T)),rep(0.8,floor((m-tstar)*T))) + e
   model <- y ~ 1
   ##
-  SBQ = sbq.detector(model, T)
+  SBQ = backCUSUM::SBQ.mon.infinite(model, T)$detector.scaled
   Q <- backCUSUM::Q.mon.infinite(model, T)$detector.scaled
   CSW.out = csw(model,T)
   CSW=CSW.out$detector/CSW.out$boundary
@@ -142,27 +127,12 @@ simM2 <- function(T, m=10, tstar=m){
     return(list(detector = round(unname(detector),6), boundary = round(boundary.CSW,6), rejection = rejection, detectiontime = detectiontime, statistic = round(statistic,6)))
   }
   ##
-  sbq.detector <- function(model, T){
-    boundary = matrix(NA, ncol = mT, nrow = mT)
-    for(j in (T+1):mT){
-      r=j/T
-      S=(T:(j-1))/T
-      boundary[(T+1):j,j] = (1+2*(r-S))*sqrt(r)
-    }
-    Q <- backCUSUM::get.cusumprocess(model, T)
-    SBQ = matrix(NA, nrow = mT, ncol = mT)
-    for(t in (T+1):mT) (SBQ[(T+1):t,t] <- apply(abs(Q[,t] - Q[,T:(t-1),drop=F]),2,max))
-    detector.array = SBQ/boundary
-    SBQ = apply(detector.array[-(1:T),-(1:T)],2,max,na.rm=TRUE)
-    return(SBQ)
-  }
-  ##
   e = rnorm(mT,0,1)
   x=filter(rnorm(mT,0,1),0.5,"recursive")
   y=1 + x*c(rep(0,floor(tstar*T)),rep(0.8,floor((m-tstar)*T)))+e
   model <- y ~ 1 + x
   ##
-  SBQ = sbq.detector(model, T)
+  SBQ = backCUSUM::SBQ.mon.infinite(model, T)$detector.scaled
   Q <- backCUSUM::Q.mon.infinite(model, T)$detector.scaled
   CSW.out = csw(model,T)
   CSW=CSW.out$detector/CSW.out$boundary
@@ -216,29 +186,13 @@ simM3 <- function(T, m=10, tstar=m){
     return(list(detector = round(unname(detector),6), boundary = round(boundary.CSW,6), rejection = rejection, detectiontime = detectiontime, statistic = round(statistic,6)))
   }
   ##
-  sbq.detector <- function(model, T){
-    boundary = matrix(NA, ncol = mT-1, nrow = mT-1)
-    for(j in (T+1):(mT-1)){
-      r=j/T
-      S=(T:(j-1))/T
-      boundary[(T+1):j,j] = (1+2*(r-S))*sqrt(r)
-    }
-    Q <- backCUSUM::get.cusumprocess(model, T)
-    Q=Q[1,]
-    SBQ = matrix(NA, nrow = mT-1, ncol = mT-1)
-    for(t in (T+1):(mT-1)) (SBQ[(T+1):t,t] <- abs(Q[t] - Q[T:(t-1)]))
-    detector.array = SBQ/boundary
-    SBQ = apply(detector.array[-(1:T),-(1:T)],2,max,na.rm=TRUE)
-    return(SBQ)
-  }
-  ##
   e = rnorm(mT,0,1)
   emu = e + c(rep(0,floor(tstar*T)),rep(0.8,floor((m-tstar)*T)))
   y=filter(emu,0.5,"recursive")
   model = y[2:mT] ~ 1 + y[1:(mT-1)]
   H = matrix(c(1,0), ncol = 1)
   ##
-  SBQ = sbq.detector(model, T)
+  SBQ = backCUSUM::SBQ.mon.infinite(model, T)$detector.scaled
   Q <- backCUSUM::Q.mon.infinite(model, T, H=H)$detector.scaled
   CSW.out = csw(model,T)
   CSW=CSW.out$detector/CSW.out$boundary
