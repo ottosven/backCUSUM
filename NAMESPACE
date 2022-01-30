@@ -2,6 +2,7 @@
 
 export(BQ.test)
 export(Q.mon)
+export(Q.mon.infinite)
 export(Q.test)
 export(SBQ.mon)
 export(SBQ.test)

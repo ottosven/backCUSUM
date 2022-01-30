@@ -89,10 +89,7 @@ simM1 <- function(T, m=10, tstar=m){
   model <- y ~ 1
   ##
   SBQ = sbq.detector(model, T)
-  Q.det <- backCUSUM::Q.mon(model, T)$detector
-  r <- (1:mT)/T
-  boundary.lin <- 1+2*(r-1)[(T+1):mT]
-  Q <- Q.det/boundary.lin
+  Q <- backCUSUM::Q.mon.infinite(model, T)$detector.scaled
   CSW.out = csw(model,T)
   CSW=CSW.out$detector/CSW.out$boundary
   fremdt = fremdt.detector(model, T)
@@ -166,10 +163,7 @@ simM2 <- function(T, m=10, tstar=m){
   model <- y ~ 1 + x
   ##
   SBQ = sbq.detector(model, T)
-  Q.det <- backCUSUM::Q.mon(model, T)$detector
-  r <- (1:mT)/T
-  boundary.lin <- 1+2*(r-1)[(T+1):mT]
-  Q <- Q.det/boundary.lin
+  Q <- backCUSUM::Q.mon.infinite(model, T)$detector.scaled
   CSW.out = csw(model,T)
   CSW=CSW.out$detector/CSW.out$boundary
   fremdt = fremdt.detector(model, T)
@@ -245,10 +239,7 @@ simM3 <- function(T, m=10, tstar=m){
   H = matrix(c(1,0), ncol = 1)
   ##
   SBQ = sbq.detector(model, T)
-  Q.det <- backCUSUM::Q.mon(model, T, H=H)$detector
-  r <- (1:(mT-1))/T
-  boundary.lin <- 1+2*(r-1)[(T+1):(mT-1)]
-  Q <- Q.det/boundary.lin
+  Q <- backCUSUM::Q.mon.infinite(model, T, H=H)$detector.scaled
   CSW.out = csw(model,T)
   CSW=CSW.out$detector/CSW.out$boundary
   fremdt = fremdt.detector(model, T)

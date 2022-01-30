@@ -2,7 +2,7 @@
 % Please edit documentation in R/detectors_monitoring.R
 \name{Q.mon}
 \alias{Q.mon}
-\title{Multivariate forward CUSUM monitoring}
+\title{Multivariate forward CUSUM monitoring with finite horizon}
 \usage{
 Q.mon(
   formula,
@@ -38,7 +38,7 @@ A list containing the following components:
 \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
 }
 \description{
-Performs the multivariate forward CUSUM monitoring procedure using the linear boundary of Brown, Durbin, and Evans (1975)
+Performs the multivariate forward CUSUM monitoring procedure with linear boundary
 }
 \examples{
 T <- 100

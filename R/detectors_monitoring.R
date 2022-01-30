@@ -1,6 +1,6 @@
-#' Stacked backward CUSUM monitoring
+#' Stacked backward CUSUM monitoring with finite horizon
 #'
-#' Performs the multivariate stacked backward CUSUM monitoring procedure using the linear boundary of Brown, Durbin, and Evans (1975)
+#' Performs the multivariate stacked backward CUSUM monitoring procedure with linear boundary
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
 #' @param T Length of the training sample. Monitoring starts at T+1.
@@ -82,9 +82,9 @@ SBQ.mon <- function(formula, T, m=10, alternative = c("two.sided", "greater", "l
 }
 
 
-#' Multivariate forward CUSUM monitoring
+#' Multivariate forward CUSUM monitoring with finite horizon
 #'
-#' Performs the multivariate forward CUSUM monitoring procedure using the linear boundary of Brown, Durbin, and Evans (1975)
+#' Performs the multivariate forward CUSUM monitoring procedure with linear boundary
 #'
 #' @param formula Specification of the linear regression model by an object of the class "formula"
 #' @param T Length of the training sample. Monitoring starts at T+1.
@@ -142,6 +142,83 @@ Q.mon <- function(formula, T, m=10, alternative = c("two.sided", "greater", "les
     crit.val <- crit.Q.Mtest(k, m)$crit
   } else {
     crit.val <- crit.Q.Mtest(k, m, "one.sided")$crit
+  }
+  rejection <- statistic > crit.val
+  # detection time point
+  detection <- function(crit) ( T + which(detector/boundary > crit)[1] )
+  detectiontime <- apply(matrix(crit.val), 1, detection)
+  names(detectiontime) <- names(rejection)
+  output = list(
+    detector = round(unname(detector),6),
+    boundary = round(boundary,6),
+    detector.scaled = round(unname(detector/boundary),6),
+    statistic = round(statistic,6),
+    detectiontime = detectiontime,
+    alternative = alternative,
+    critical.value = crit.val,
+    rejection = rejection
+  )
+  return(output)
+}
+
+
+#' Multivariate forward CUSUM monitoring with infinite horizon
+#'
+#' Performs the infinite horizon multivariate forward CUSUM monitoring procedure with linear boundary
+#'
+#' @param formula Specification of the linear regression model by an object of the class "formula"
+#' @param T Length of the training sample. Monitoring starts at T+1.
+#' @param alternative A character string specifying the alternative hypothesis; must be one of "two.sided" (default), "greater" or "less".
+#' The output detector is the maximum norm of \eqn{Q_t} ("two.sided"), the maximum entry of \eqn{Q_t} ("greater"), or maximum entry of \eqn{-Q_t} ("less"), respectively.
+#' @param H An optional matrix for the partial hypothesis \eqn{H'\beta_t = H'\beta_0}, where \eqn{H'Q_t} is considered instead of \eqn{Q_t}.
+#' \eqn{H} must have orthonormal columns. For a test for a break in the intercept, H can also set to the string "intercept".
+#' The full structural break test is considered as the default setting (NULL).
+#'
+#' @return A list containing the following components:
+#' \item{detector}{A vector containing the path of the detector statistic from T+1 onwards depending on the specificaton for the alternative hypothesis}
+#' \item{boundary}{A vector containing the values of the linear boundary function from T+1 onwards}
+#' \item{detector.scaled}{A vector containing the path of the detector divided by the boundary}
+#' \item{statistic}{The test statistic; maximum of detector.scaled}
+#' \item{detectontime}{The vector containing the detection time points for different significance levels, which are the time indices of the first boundary crossing; NA if the null hypothesis is not rejected}
+#' \item{alternative}{The specification for the alternative hypothesis}
+#' \item{critical.value}{A vector containing critical values for different significance levels; NA if critical value for this specification is not implemented}
+#' \item{rejection}{A logical vector containing the test decision for different significance levels; TRUE for rejection; NA if critical value is not implemented}
+#' @export
+#'
+#' @examples
+#' T <- 100
+#' t <- 5*T
+#' u <- rnorm(t,0,1)
+#' x <- rnorm(t,1,2)
+#' y <- c(rep(0,480), rep(5,20)) + x + I(x^2) + u
+#' Q.mon.infinite(y~1+x+I(x^2), T)
+#' Q.mon.infinite(y~1+x+I(x^2), T, alternative = "greater")
+#' H <- matrix(c(1,0,0), ncol = 1)
+#' Q.mon.infinite(y~1+x+I(x^2), T, H = H)
+Q.mon.infinite <- function(formula, T, alternative = c("two.sided", "greater", "less"), H = NULL){
+  alternative=match.arg(alternative)
+  n <- dim(model.matrix(formula))[1] #current time point
+  k <- dim(model.matrix(formula))[2]
+  if (is.null(H)){
+    Q <- get.cusumprocess(formula, T)
+  } else {
+    Q <- get.partialcusum(formula, T, H)
+    k <- dim(Q)[1]
+  }
+  # detector statistic
+  m.detector <- Q[,(T+1):n,drop=F]-Q[,T]
+  if(alternative == "two.sided")( detector <- apply(abs(m.detector), 2, max) )
+  if(alternative == "less") ( detector <- apply(-m.detector, 2, max) )
+  if(alternative == "greater") ( detector <- apply(m.detector, 2, max) )
+  # boundary function
+  boundary <- 1+2*(1:(n-T))/T
+  # maximum statistic
+  statistic <- max(detector/boundary)
+  # critical values and test decision
+  if(alternative == "two.sided"){
+    crit.val <- crit.Q.Mtest(k, m=Inf)$crit
+  } else {
+    crit.val <- crit.Q.Mtest(k, m=Inf, "one.sided")$crit
   }
   rejection <- statistic > crit.val
   # detection time point
