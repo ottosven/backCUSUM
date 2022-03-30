@@ -9,7 +9,7 @@
 
 The goal of backCUSUM is to provide functionality to apply the methods
 developed in the paper “[Backward CUSUM for Testing and Monitoring
-Structural Change](https://arxiv.org/abs/2003.02682)” by [Sven
+Structural Change with an Application to COVID-19 Pandemic Data](https://arxiv.org/abs/2003.02682)” by [Sven
 Otto](https://www.svenotto.com) and [Jörg
 Breitung](https://wisostat.uni-koeln.de/en/institute/professors/breitung).
 The repository also provides code to replicate all simulation results in
