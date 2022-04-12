@@ -15,6 +15,9 @@ Breitung](https://wisostat.uni-koeln.de/en/institute/professors/breitung).
 The repository also provides code to replicate all simulation results in
 this paper.
 
+Paper: https://doi.org/10.1017/S0266466622000159
+Preprint: https://arxiv.org/abs/2003.02682
+
 ## Installation
 
 You can install the package using the following command:
